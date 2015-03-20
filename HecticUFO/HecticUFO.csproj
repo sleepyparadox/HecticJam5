@@ -54,6 +54,7 @@
     <Compile Include="UnityGame\Assets\Assets.cs" />
     <Compile Include="UnityGame\Assets\HecticUFOGame.cs" />
     <Compile Include="UnityGame\Assets\EngineScript.cs" />
+    <Compile Include="UnityGame\Assets\Shadow.cs" />
     <Compile Include="UnityGame\Assets\UFO.cs" />
     <Compile Include="UnityGame\Assets\UFOCamera.cs" />
     <Compile Include="UnityGame\Assets\UnityTools\Asset\Asset.cs" />

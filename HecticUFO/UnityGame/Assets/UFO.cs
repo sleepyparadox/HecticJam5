@@ -12,18 +12,23 @@ namespace HecticUFO
     {
         public Vector3 MouseTarget;
         public UFOCamera Camera;
-        public float Speed = 5;
+        public float DefaultSpeed = 15;
         public float CollectRadius = 2f;
         Collider GroundCollider;
         Transform CollectDest;
-        public float CollectForce = 200f;
-        public float ShootVelocity = 20f;
+        public float CollectVelocity = 10f;
+        public float ShootVelocity = 40f;
         public List<UnityObject> Collecting = new List<UnityObject>();
         public List<UnityObject> Collected = new List<UnityObject>();
+        private UnityEngine.GameObject Mesh;
+        private Vector3 MeshStartPos;
+        Vector3 WhobbleAmount;
+        int CollectCountMax = 25;
+
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
         {
-            GroundCollider = GameObject.Find("Ground").GetComponent<Collider>();
+            GroundCollider = GameObject.Find("GroundBounce").GetComponent<Collider>();
             Camera = new UFOCamera();
             Camera.Parent = this;
 
@@ -35,19 +40,31 @@ namespace HecticUFO
             };
 
             //Whobble
-            var mesh = FindChild("Mesh");
-            var meshStartPos = mesh.transform.localPosition;
-            var whobbleAmount = Vector3.up * 0.25f;
-            UnityUpdate += (me) => mesh.transform.localPosition = meshStartPos + (Mathf.Sin(Time.time * 10f) * whobbleAmount);
+            Mesh = FindChild("Mesh");
+            MeshStartPos = Mesh.transform.localPosition;
+            WhobbleAmount = Vector3.up * 0.25f;
+
+            TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
 
             //TODO, not whobbly dest
-            CollectDest = mesh.transform; 
+            CollectDest = Mesh.transform; 
         }
 
+        float CargoModifier = 1f;
         void HandleInput(UnityObject me)
         {
-            WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * Speed * Time.deltaTime;
-            WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * Speed * Time.deltaTime;
+            var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
+            CargoModifier = Mathf.Lerp(CargoModifier, targetCargoModifer, Time.deltaTime);
+            Debug.Log((Collecting.Count + Collected.Count) + " of " + CollectCountMax + ", " + Collecting.Count + " collecting, " + Collected.Count + " collected");
+
+            var modifiedSpeed = DefaultSpeed * CargoModifier;
+            WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * modifiedSpeed * Time.deltaTime;
+            WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * modifiedSpeed * Time.deltaTime;
+
+            var heightWithWeight = MeshStartPos * (0.5f + (0.5f * CargoModifier));
+            Debug.Log("Cargo Mod " + CargoModifier + ", Height " + heightWithWeight);
+            var whobble = Mathf.Sin(Time.time * 10f) * WhobbleAmount;
+            Mesh.transform.localPosition = heightWithWeight + whobble;
 
             var mouseRay = Camera.UnityCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit mouseHit;
@@ -60,6 +77,7 @@ namespace HecticUFO
 
             if(Input.GetMouseButton(0))
             {
+                var canCollect = (Collected.Count + Collecting.Count) < CollectCountMax;
                 var rays = new List<Ray>();
                 for (float x = -CollectRadius; x <= CollectRadius; x += CollectRadius / 5f)
                 {
@@ -70,7 +88,9 @@ namespace HecticUFO
                         var diff = new Vector3(MouseTarget.x + x, 0f, MouseTarget.z + z) - CollectDest.position;
                         var ray = new Ray(CollectDest.position, diff.normalized);
                         rays.Add(ray);
-                        Debug.DrawLine(ray.origin, ray.origin + diff, Color.blue);
+
+
+                        Debug.DrawLine(ray.origin, ray.origin + diff, canCollect ? Color.green : Color.Lerp(Color.green, Color.black, 0.5f));
                     }
                 }
                 
@@ -80,6 +100,9 @@ namespace HecticUFO
                         || Collected.Contains(prop))
                         continue;
 
+                    if (Collecting.Count + Collected.Count >= CollectCountMax)
+                        break;
+
                     var collider = prop.GameObject.GetComponent<Collider>();
                     var rigidbody = prop.GameObject.GetComponent<Rigidbody>();
 
@@ -87,35 +110,57 @@ namespace HecticUFO
                     if(rays.Any((r) => collider.Raycast(r, out hit, 10000)))
                     {
                         var temp = prop;
-                        Debug.Log("Spawn collecting " + temp.GameObject.name);
                         Collecting.Add(temp);
                         TinyCoro.SpawnNext(() => PreformAbduct(temp));
                     }
                 }
             }
-
-            if(Input.GetMouseButtonUp(1)
+            else if(Input.GetMouseButtonDown(1)
                 && Collected.Any())
             {
-                var projectile = Collected[0];
-                Collected.RemoveAt(0);
-                projectile.Transform.position = CollectDest.position;
-                projectile.SetActive(true);
-                var rigidbody = projectile.GameObject.GetComponent<Rigidbody>();
-                rigidbody.velocity = (MouseTarget - projectile.Transform.position).normalized * ShootVelocity;
+                TinyCoro.SpawnNext(PreformSpew);
+            }
+        }
+
+        IEnumerator PreformSpew()
+        {
+            var slowFireRate = 0.5f;
+            var fastFireRate = 0.1f;
+            var deltaFireRateMultiplier = 0.75f;
+
+            var fireRate = slowFireRate;
+            var elapsed = slowFireRate;
+            while(Input.GetMouseButton(1)
+                && Collected.Count > 0)
+            {
+                if(elapsed >= fireRate)
+                {
+                    var projectile = Collected[0];
+                    Collected.RemoveAt(0);
+                    projectile.Transform.position = CollectDest.position;
+                    projectile.SetActive(true);
+                    var rigidbody = projectile.GameObject.GetComponent<Rigidbody>();
+                    rigidbody.velocity = (MouseTarget - projectile.Transform.position).normalized * ShootVelocity;
+
+                    fireRate = Mathf.Max(fastFireRate, fireRate * deltaFireRateMultiplier);
+                    elapsed = 0f; //Reset
+                }
+                
+                yield return null;
+                elapsed += Time.deltaTime;
             }
         }
 
         IEnumerator PreformAbduct(UnityObject prop)
         {
-            Debug.Log("Start collecting " + prop.GameObject.name);
             var rigid = prop.GameObject.GetComponent<Rigidbody>();
             rigid.useGravity = false;
             var origonalScale = rigid.transform.localScale;
             var scale = 1f;
             var shrinkAt = 3f;
             var collectAtDist = 1f;
-            while(Input.GetMouseButton(0))
+            while(Input.GetMouseButton(0)
+                && Collected.Count < CollectCountMax)
             {
                 var dist = CollectDest.position - prop.Transform.position;
                 var distMag = dist.magnitude;
@@ -123,7 +168,6 @@ namespace HecticUFO
                 //Collect
                 if (distMag < collectAtDist)
                 {
-                    Debug.Log("Collect " + prop.GameObject.name);
                     rigid.useGravity = true;
                     rigid.transform.localScale = origonalScale;
                     Collecting.Remove(prop);
@@ -131,16 +175,15 @@ namespace HecticUFO
                     Collected.Add(prop);
                     yield break;
                 }
-                
-                rigid.AddForce(dist.normalized * CollectForce * Time.deltaTime);
+
+                rigid.velocity = dist.normalized * CollectVelocity;
 
                 scale = Math.Min(1f, distMag / shrinkAt);
                 prop.Transform.localScale = origonalScale * scale;
 
+
                 yield return null;
             }
-
-            Debug.Log("Drop " + prop.GameObject.name);
 
             //Dropped
             rigid.useGravity = true;
