@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using HecticUFO.UnityGame.Assets;
+using HecticUFO;
 using UnityTools_4_6;
- 
-class MainGame : MonoBehaviour
+
+class EngineScript : MonoBehaviour
 {
     void Awake()
     {
