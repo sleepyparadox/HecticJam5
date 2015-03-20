@@ -14,13 +14,16 @@ namespace HecticUFO
         public UFOCamera Camera;
         public float Speed = 5;
         public float CollectRadius = 2f;
-        Collider GroundColllider;
+        Collider GroundCollider;
         Transform CollectDest;
-        public float CollectForce = 40f;
+        public float CollectForce = 200f;
+        public float ShootVelocity = 20f;
+        public List<UnityObject> Collecting = new List<UnityObject>();
+        public List<UnityObject> Collected = new List<UnityObject>();
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
         {
-            GroundColllider = GameObject.Find("Ground").GetComponent<Collider>();
+            GroundCollider = GameObject.Find("Ground").GetComponent<Collider>();
             Camera = new UFOCamera();
             Camera.Parent = this;
 
@@ -48,7 +51,7 @@ namespace HecticUFO
 
             var mouseRay = Camera.UnityCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit mouseHit;
-            if (GroundColllider.Raycast(mouseRay, out mouseHit, 1000))
+            if (GroundCollider.Raycast(mouseRay, out mouseHit, 1000))
             {
                 MouseTarget = mouseHit.point;
                 Debug.DrawLine(MouseTarget, MouseTarget + Vector3.up, Color.red);
@@ -73,31 +76,87 @@ namespace HecticUFO
                 
                 foreach(var prop in HecticUFOGame.S.Props)
                 {
+                    if (Collecting.Contains(prop)
+                        || Collected.Contains(prop))
+                        continue;
+
                     var collider = prop.GameObject.GetComponent<Collider>();
                     var rigidbody = prop.GameObject.GetComponent<Rigidbody>();
 
                     RaycastHit hit;
                     if(rays.Any((r) => collider.Raycast(r, out hit, 10000)))
                     {
-                        rigidbody.AddForce((CollectDest.position - prop.WorldPosition) * Time.deltaTime * CollectForce);
-                        rigidbody.useGravity = false;
-                    }
-                    else
-                    {
-                        rigidbody.useGravity = true;
+                        var temp = prop;
+                        Debug.Log("Spawn collecting " + temp.GameObject.name);
+                        Collecting.Add(temp);
+                        TinyCoro.SpawnNext(() => PreformAbduct(temp));
                     }
                 }
             }
-            else
+
+            if(Input.GetMouseButtonUp(1)
+                && Collected.Any())
             {
-                foreach(var prop in HecticUFOGame.S.Props)
+                var projectile = Collected[0];
+                Collected.RemoveAt(0);
+                projectile.Transform.position = CollectDest.position;
+                projectile.SetActive(true);
+                var rigidbody = projectile.GameObject.GetComponent<Rigidbody>();
+                rigidbody.velocity = (MouseTarget - projectile.Transform.position).normalized * ShootVelocity;
+            }
+        }
+
+        IEnumerator PreformAbduct(UnityObject prop)
+        {
+            Debug.Log("Start collecting " + prop.GameObject.name);
+            var rigid = prop.GameObject.GetComponent<Rigidbody>();
+            rigid.useGravity = false;
+            var origonalScale = rigid.transform.localScale;
+            var scale = 1f;
+            var shrinkAt = 3f;
+            var collectAtDist = 1f;
+            while(Input.GetMouseButton(0))
+            {
+                var dist = CollectDest.position - prop.Transform.position;
+                var distMag = dist.magnitude;
+                
+                //Collect
+                if (distMag < collectAtDist)
                 {
-                    var rigidbody = prop.GameObject.GetComponent<Rigidbody>();
-                    rigidbody.useGravity = true;
+                    Debug.Log("Collect " + prop.GameObject.name);
+                    rigid.useGravity = true;
+                    rigid.transform.localScale = origonalScale;
+                    Collecting.Remove(prop);
+                    prop.SetActive(false);
+                    Collected.Add(prop);
+                    yield break;
                 }
+                
+                rigid.AddForce(dist.normalized * CollectForce * Time.deltaTime);
+
+                scale = Math.Min(1f, distMag / shrinkAt);
+                prop.Transform.localScale = origonalScale * scale;
+
+                yield return null;
             }
 
+            Debug.Log("Drop " + prop.GameObject.name);
 
+            //Dropped
+            rigid.useGravity = true;
+
+            //Pop back to origonal sice
+            var popElapsed = 0f;
+            var popDur = (1f - scale) / 2f;
+            while(popElapsed < popDur)
+            {
+                var popScale = Mathf.Lerp(scale, 1, popElapsed / popDur);
+                rigid.transform.localScale = origonalScale * popScale;
+                yield return null;
+                popElapsed += Time.deltaTime;
+            }
+            rigid.transform.localScale = origonalScale;
+            Collecting.Remove(prop);
         }
     }
 }
