@@ -66,12 +66,12 @@ namespace HecticUFO
                         return false;
 
                     var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
-                    return (ufoFlee.sqrMagnitude < ThreatRange * ThreatRange);
+                    return (ufoFlee.sqrMagnitude < 5 * 5);
                 });
                 //yield return TinyCoro.WaitUntil(StunWearsOff);
                 //if(AIAlive)
                 {
-                    var random = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f))
+                    var random = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0)
                                     * 0.5f;
                     new Bullet(WorldPosition, HecticUFOGame.S.UFO.Mesh.transform.position + random);
                     nextShotAfter = Time.time + UnityEngine.Random.Range(2, 3);

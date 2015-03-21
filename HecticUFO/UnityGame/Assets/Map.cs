@@ -161,6 +161,7 @@ namespace HecticUFO
             var renderer = GameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = sharedMaterial;
         }
+
         public Brush Brush;
         public MeshFilter Filter;
         public bool DebugOnly;

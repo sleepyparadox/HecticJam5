@@ -24,6 +24,8 @@ namespace HecticUFO
         private Vector3 MeshStartPos;
         Vector3 WhobbleAmount;
         int CollectCountMax = 25;
+        List<GameObject> HPParticles;
+        ParticleSystem FireEffect;
 
         Brush Brush;
 
@@ -57,6 +59,15 @@ namespace HecticUFO
             MeshStartPos = Mesh.transform.localPosition;
             WhobbleAmount = Vector3.up * 0.25f;
 
+            HPParticles = new List<GameObject>();
+            for (var i = 0; i < Mesh.transform.childCount - 2; ++i)
+                HPParticles.Add(Mesh.transform.GetChild(i).gameObject);
+            _hp = HPParticles.Count;
+            FireEffect = Mesh.transform.FindChild("Fire").GetComponent<ParticleSystem>();
+            FireEffect.enableEmission = false;
+            SmokeEffect = Mesh.transform.FindChild("Smoke").GetComponent<ParticleSystem>();
+            SmokeEffect.enableEmission = false;
+
             TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
 
             //TODO, not whobbly dest
@@ -67,6 +78,7 @@ namespace HecticUFO
         private UFOBeam Beam;
 
         int _hp = 7;
+        private ParticleSystem SmokeEffect;
         public int Health
         {
             get
@@ -76,6 +88,30 @@ namespace HecticUFO
             set
             {
                 _hp = value;
+                for (var i = 0; i < HPParticles.Count; ++i)
+                    HPParticles[i].SetActive(_hp > i);
+
+                if(_hp <= 0)
+                {
+                    UnityUpdate = null;
+                    UnityUpdate += (me) => 
+                    {
+                        Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 6 * Time.deltaTime);
+                        Camera.WorldPosition = new Vector3(Mesh.transform.position.x, 0, Mesh.transform.position.z);
+                    };
+                    var rigid = Mesh.AddComponent<Rigidbody>();
+                    rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+
+                    var rand = new Vector3(0.25f, UnityEngine.Random.Range(-1f, 1f), 0f);
+                    rand.Normalize();
+
+                    rigid.velocity += rand * 10f;
+                    
+                    FireEffect.enableEmission = true;
+                    FireEffect.Play();
+                    SmokeEffect.enableEmission = true;
+                    SmokeEffect.Play();
+                }
             }
         }
         void HandleInput(UnityObject me)
