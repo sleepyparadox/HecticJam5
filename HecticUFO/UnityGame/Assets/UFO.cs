@@ -188,7 +188,8 @@ namespace HecticUFO
 
                     //projectile.GameObject.layer = UnityEngine.Random.Range(0, 100) <= 50 ? Layers.PropStuck : Layers.PropBounce;
                     projectile.WillBounce();
-                    
+                    projectile.LastShotAt = Time.time;
+
                     projectile.Transform.position = CollectDest.position;
                     projectile.SetActive(true);
                     var rigidbody = projectile.GameObject.GetComponent<Rigidbody>();

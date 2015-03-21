@@ -10,6 +10,7 @@ namespace HecticUFO
 {
     public class Prop : UnityObject
     {
+        public float LastShotAt = -1000;
         public int FoodValue;
         public bool NeedsShadow = true;
         public Rigidbody Rigid;
@@ -137,6 +138,11 @@ namespace HecticUFO
             Rigid.angularDrag = OrigonalAngularDrag;
             Rigid.mass = OrigonalMass;
             Rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+        }
+
+        public bool StunWearsOff()
+        {
+            return Time.time >= LastShotAt + 10;
         }
     }
 }

@@ -52,8 +52,10 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnityGame\Assets\Assets.cs" />
+    <Compile Include="UnityGame\Assets\Cow.cs" />
     <Compile Include="UnityGame\Assets\Brush.cs" />
     <Compile Include="UnityGame\Assets\Cell.cs" />
+    <Compile Include="UnityGame\Assets\Farmer.cs" />
     <Compile Include="UnityGame\Assets\HecticUFOGame.cs" />
     <Compile Include="UnityGame\Assets\EngineScript.cs" />
     <Compile Include="UnityGame\Assets\Layers.cs" />
