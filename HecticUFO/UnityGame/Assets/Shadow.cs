@@ -11,27 +11,24 @@ namespace HecticUFO
     {
         public static IEnumerator Create(GameObject target)
         {
-            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            quad.transform.localRotation = Quaternion.AngleAxis(90f, Vector3.right);
-            quad.GetComponent<Renderer>().material.color = Color.black;
+            var quad = new UnityObject(Assets.Prefabs.ShadowPrefab);
             var rigidbody = target.GetComponent<Rigidbody>();
-
             while(true)
             {
                 if (target.activeSelf)
                 {
-                    if (!quad.activeSelf)
+                    if (!quad.GameObject.activeSelf)
                         quad.SetActive(true);
 
                     if (rigidbody == null || !rigidbody.IsSleeping())
                     {
-                        quad.transform.position = new Vector3(target.transform.position.x, 0.05f, target.transform.position.z);
-                        quad.transform.localScale = new Vector3(target.transform.localScale.x, 1f, target.transform.localScale.z);
+                        quad.Transform.position = new Vector3(target.transform.position.x, 0.05f, target.transform.position.z);
+                        quad.Transform.localScale = new Vector3(target.transform.localScale.x, 1f, target.transform.localScale.z);
                     }
                 }
                 else
                 {
-                    if (quad.activeSelf)
+                    if (quad.GameObject.activeSelf)
                         quad.SetActive(false);
                 }
                 yield return null;

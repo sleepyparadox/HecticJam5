@@ -9,16 +9,18 @@ public class Assets
    {
       public readonly static MaterialAsset BlueMaterial = new MaterialAsset(@"Materials/Blue");
       public readonly static MaterialAsset RedMaterial = new MaterialAsset(@"Materials/Red");
+      public readonly static MaterialAsset ShadowMaterial = new MaterialAsset(@"Materials/Shadow");
       public readonly static MaterialAsset Temp_UFOMaterial = new MaterialAsset(@"Materials/Temp UFO");
       public readonly static MaterialAsset tree1Material = new MaterialAsset(@"Materials/tree1");
-      public static Asset[] GetAssets() { return new Asset []{ BlueMaterial, RedMaterial, Temp_UFOMaterial, tree1Material }; }
+      public static Asset[] GetAssets() { return new Asset []{ BlueMaterial, RedMaterial, ShadowMaterial, Temp_UFOMaterial, tree1Material }; }
    }
    public class Prefabs
    {
       public readonly static PrefabAsset CameraPrefab = new PrefabAsset(@"Prefabs/Camera");
+      public readonly static PrefabAsset ShadowPrefab = new PrefabAsset(@"Prefabs/Shadow");
       public readonly static PrefabAsset Tree1Prefab = new PrefabAsset(@"Prefabs/Tree1");
       public readonly static PrefabAsset UFOPrefab = new PrefabAsset(@"Prefabs/UFO");
-      public static Asset[] GetAssets() { return new Asset []{ CameraPrefab, Tree1Prefab, UFOPrefab }; }
+      public static Asset[] GetAssets() { return new Asset []{ CameraPrefab, ShadowPrefab, Tree1Prefab, UFOPrefab }; }
    }
    public class Textures
    {

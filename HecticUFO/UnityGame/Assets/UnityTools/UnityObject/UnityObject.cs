@@ -27,6 +27,7 @@ public class UnityObject
     public UnityEventAction<UnityObject> UnityGUI;
     public UnityEventAction<UnityObject> UnityDrawGizmos;
     public UnityEventAction<UnityObject> UnityInspectorGUI;
+    public UnityEventAction<UnityObject, Collision> UnityOnCollisionEnter;
 
     private UnityObjectBehaviour _behaviour;
 

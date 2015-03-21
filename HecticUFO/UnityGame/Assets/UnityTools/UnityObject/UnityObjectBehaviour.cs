@@ -70,4 +70,14 @@ public class UnityObjectBehaviour : MonoBehaviour
         if (UnityObject.UnityDrawGizmos != null)
             UnityObject.UnityDrawGizmos.Fire(UnityObject);
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        //Start has nice clean error
+        if (UnityObject == null)
+            return;
+
+        if (UnityObject.UnityOnCollisionEnter != null)
+            UnityObject.UnityOnCollisionEnter.Fire(UnityObject, collision);
+    }
 }

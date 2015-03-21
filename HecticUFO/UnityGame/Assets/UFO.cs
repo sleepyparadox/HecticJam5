@@ -18,8 +18,8 @@ namespace HecticUFO
         Transform CollectDest;
         public float CollectVelocity = 10f;
         public float ShootVelocity = 40f;
-        public List<UnityObject> Collecting = new List<UnityObject>();
-        public List<UnityObject> Collected = new List<UnityObject>();
+        public List<Prop> Collecting = new List<Prop>();
+        public List<Prop> Collected = new List<Prop>();
         private UnityEngine.GameObject Mesh;
         private Vector3 MeshStartPos;
         Vector3 WhobbleAmount;
@@ -55,14 +55,14 @@ namespace HecticUFO
         {
             var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
             CargoModifier = Mathf.Lerp(CargoModifier, targetCargoModifer, Time.deltaTime);
-            Debug.Log((Collecting.Count + Collected.Count) + " of " + CollectCountMax + ", " + Collecting.Count + " collecting, " + Collected.Count + " collected");
+            //Debug.Log((Collecting.Count + Collected.Count) + " of " + CollectCountMax + ", " + Collecting.Count + " collecting, " + Collected.Count + " collected");
 
             var modifiedSpeed = DefaultSpeed * CargoModifier;
             WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * modifiedSpeed * Time.deltaTime;
             WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * modifiedSpeed * Time.deltaTime;
 
             var heightWithWeight = MeshStartPos * (0.5f + (0.5f * CargoModifier));
-            Debug.Log("Cargo Mod " + CargoModifier + ", Height " + heightWithWeight);
+            //Debug.Log("Cargo Mod " + CargoModifier + ", Height " + heightWithWeight);
             var whobble = Mathf.Sin(Time.time * 10f) * WhobbleAmount;
             Mesh.transform.localPosition = heightWithWeight + whobble;
 
@@ -137,6 +137,10 @@ namespace HecticUFO
                 {
                     var projectile = Collected[0];
                     Collected.RemoveAt(0);
+
+                    //projectile.GameObject.layer = UnityEngine.Random.Range(0, 100) <= 50 ? Layers.PropStuck : Layers.PropBounce;
+                    projectile.WillBounce();
+                    
                     projectile.Transform.position = CollectDest.position;
                     projectile.SetActive(true);
                     var rigidbody = projectile.GameObject.GetComponent<Rigidbody>();
@@ -151,11 +155,12 @@ namespace HecticUFO
             }
         }
 
-        IEnumerator PreformAbduct(UnityObject prop)
+        IEnumerator PreformAbduct(Prop prop)
         {
-            var rigid = prop.GameObject.GetComponent<Rigidbody>();
-            rigid.useGravity = false;
-            var origonalScale = rigid.transform.localScale;
+            prop.WillBounce();
+            prop.RestoreDrag();
+            prop.Rigid.useGravity = false;
+            var origonalScale = prop.Rigid.transform.localScale;
             var scale = 1f;
             var shrinkAt = 3f;
             var collectAtDist = 1f;
@@ -168,15 +173,15 @@ namespace HecticUFO
                 //Collect
                 if (distMag < collectAtDist)
                 {
-                    rigid.useGravity = true;
-                    rigid.transform.localScale = origonalScale;
+                    prop.Rigid.useGravity = true;
+                    prop.Rigid.transform.localScale = origonalScale;
                     Collecting.Remove(prop);
                     prop.SetActive(false);
                     Collected.Add(prop);
                     yield break;
                 }
 
-                rigid.velocity = dist.normalized * CollectVelocity;
+                prop.Rigid.velocity = dist.normalized * CollectVelocity;
 
                 scale = Math.Min(1f, distMag / shrinkAt);
                 prop.Transform.localScale = origonalScale * scale;
@@ -186,7 +191,7 @@ namespace HecticUFO
             }
 
             //Dropped
-            rigid.useGravity = true;
+            prop.Rigid.useGravity = true;
 
             //Pop back to origonal sice
             var popElapsed = 0f;
@@ -194,11 +199,11 @@ namespace HecticUFO
             while(popElapsed < popDur)
             {
                 var popScale = Mathf.Lerp(scale, 1, popElapsed / popDur);
-                rigid.transform.localScale = origonalScale * popScale;
+                prop.Rigid.transform.localScale = origonalScale * popScale;
                 yield return null;
                 popElapsed += Time.deltaTime;
             }
-            rigid.transform.localScale = origonalScale;
+            prop.Rigid.transform.localScale = origonalScale;
             Collecting.Remove(prop);
         }
     }

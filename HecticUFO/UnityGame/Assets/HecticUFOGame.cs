@@ -11,7 +11,8 @@ namespace HecticUFO
     {
         public static HecticUFOGame S;
         public UFO UFO;
-        public List<UnityObject> Props;
+        public List<Prop> Props;
+        public UnityObject PropParent;
         public HecticUFOGame()
         {
             S = this;
@@ -19,12 +20,16 @@ namespace HecticUFO
             UFO = new UFO();
             UFO.Parent = this;
 
-            Props = new List<UnityObject>();
+            PropParent = new UnityObject("PropParent");
+            PropParent.Parent = this;
+
+            Props = new List<Prop>();
 
             var randRadius = 35f;
             for (var i = 0; i < 160; i++ )
             {
-                var tree = new UnityObject(Assets.Prefabs.Tree1Prefab);
+                var tree = new Prop(Assets.Prefabs.Tree1Prefab);
+                tree.Parent = PropParent;
                 tree.Transform.localScale *= UnityEngine.Random.Range(1, 2f);
                 Props.Add(tree);
                 tree.GameObject.name = "Tree " + i;
