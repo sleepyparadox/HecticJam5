@@ -66,6 +66,7 @@
     <Compile Include="UnityGame\Assets\SpaceBaby.cs" />
     <Compile Include="UnityGame\Assets\SpawningPool.cs" />
     <Compile Include="UnityGame\Assets\UFO.cs" />
+    <Compile Include="UnityGame\Assets\UFOBeam.cs" />
     <Compile Include="UnityGame\Assets\UFOCamera.cs" />
     <Compile Include="UnityGame\Assets\UnityTools\Asset\Asset.cs" />
     <Compile Include="UnityGame\Assets\UnityTools\Asset\AssetDirectory.cs" />

@@ -13,9 +13,9 @@ namespace HecticUFO
         public Vector3 MouseTarget;
         public UFOCamera Camera;
         public float DefaultSpeed = 15;
-        public float CollectRadius = 2f;
+        public const float CollectRadius = 2f;
         Collider GroundCollider;
-        Transform CollectDest;
+        public Transform CollectDest;
         public float CollectVelocity = 10f;
         public float ShootVelocity = 40f;
         public List<Prop> Collecting = new List<Prop>();
@@ -30,6 +30,8 @@ namespace HecticUFO
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
         {
+            Beam = new UFOBeam();
+            //Beam.Parent = this;
             Brush = Brush.UFOAbduct;
             GroundCollider = GameObject.Find("GroundBounce").GetComponent<Collider>();
             Camera = new UFOCamera();
@@ -62,6 +64,7 @@ namespace HecticUFO
         }
 
         float CargoModifier = 1f;
+        private UFOBeam Beam;
         void HandleInput(UnityObject me)
         {
             var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
@@ -138,7 +141,7 @@ namespace HecticUFO
                         rays.Add(ray);
 
 
-                        Debug.DrawLine(ray.origin, ray.origin + diff, canCollect ? Color.green : Color.Lerp(Color.green, Color.black, 0.5f));
+                        //Debug.DrawLine(ray.origin, ray.origin + diff, canCollect ? Color.green : Color.Lerp(Color.green, Color.black, 0.5f));
                     }
                 }
                 
@@ -188,7 +191,7 @@ namespace HecticUFO
 
                     //projectile.GameObject.layer = UnityEngine.Random.Range(0, 100) <= 50 ? Layers.PropStuck : Layers.PropBounce;
                     projectile.WillBounce();
-                    projectile.LastShotAt = Time.time;
+                    projectile.LastAbductedAt = Time.time;
 
                     projectile.Transform.position = CollectDest.position;
                     projectile.SetActive(true);
@@ -235,6 +238,7 @@ namespace HecticUFO
                 scale = Math.Min(1f, distMag / shrinkAt);
                 prop.Transform.localScale = origonalScale * scale;
 
+                prop.LastAbductedAt = Time.time;
 
                 yield return null;
             }

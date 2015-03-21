@@ -17,8 +17,8 @@ namespace HecticUFO
         {
             Layers = new List<MapLayer>()
             {
-                new MapLayer(Brush.Water, Assets.Materials.BlueMaterial.Material) {Editable = false},
-                new MapLayer(Brush.Grass, Assets.Materials.GrassBaseMaterial.Material),
+                new MapLayer(Brush.Water, Assets.MaterialsGround.BlueMaterial.Material) {Editable = false},
+                new MapLayer(Brush.Grass, Assets.MaterialsGround.GrassBaseMaterial.Material),
                 new MapLayer(Brush.SpawningPool, null){ Editable = false },
                 new MapLayer(Brush.Shadow, null){ Editable = false },
                 new MapLayer(Brush.Trees, Assets.Materials.tree1Material.Material){ DebugOnly = true },
@@ -152,6 +152,7 @@ namespace HecticUFO
         public MapLayer(Brush brush, Material sharedMaterial)
             :base(brush.ToString())
         {
+            GameObject.layer = Layers.GroundMesh;
             Brush = brush;
             if (sharedMaterial == null)
                 return;
