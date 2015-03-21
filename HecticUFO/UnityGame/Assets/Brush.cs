@@ -15,5 +15,6 @@ namespace HecticUFO
         Road,
         Farm,
         SpawningPool,
+        Shadow,
     }
 }

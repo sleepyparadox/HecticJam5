@@ -8,7 +8,7 @@ namespace HecticUFO
 {
     public class SpawningPool : UnityObject
     {
-        public const float Radius = 10f;
+        public const float Radius = 3;
         public const float RadiusSqrd = Radius * Radius;
         public SpawningPool(Vector3 mapCenter)
             : base(Assets.Prefabs.SpawningPoolPrefab)
@@ -17,7 +17,7 @@ namespace HecticUFO
             UnityDrawGizmos += (me) =>
             {
                 Gizmos.color = Color.Lerp(Color.blue, Color.red, 0.5f);
-                Gizmos.DrawWireSphere(WorldPosition, Radius);
+                Gizmos.DrawWireSphere(WorldPosition, Radius * 2f);
             };
         }
     }

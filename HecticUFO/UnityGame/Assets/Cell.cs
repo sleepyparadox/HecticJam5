@@ -61,8 +61,6 @@ namespace HecticUFO
                         var cell = parsed[x, y];
                         foreach (var val in vals)
                         {
-                            if (val.Contains("Trees"))
-                                Debug.Log("val " + val);
                             if (string.IsNullOrEmpty(val))
                                 continue;
                             try

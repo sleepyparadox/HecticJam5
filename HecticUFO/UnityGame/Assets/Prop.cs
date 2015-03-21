@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,12 @@ namespace HecticUFO
 {
     public class Prop : UnityObject
     {
+        public bool NeedsShadow = true;
         public Rigidbody Rigid;
         float OrigonalDrag;
         float OrigonalAngularDrag;
         float OrigonalMass;
+        private TinyCoro ShadowCoro;
         public Prop(PrefabAsset prefab)
             :base (prefab)
         {
@@ -23,16 +26,48 @@ namespace HecticUFO
 
             UnityUpdate += CheckForStickySpawningPool;
             UnityOnCollisionEnter += OnAnyCollide;
+
+            ShadowCoro = TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
         }
 
         void CheckForStickySpawningPool(UnityObject me)
         {
-            if(GameObject.layer == Layers.PropStuck)
-                return;
-
             var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
             if ((dif.x * dif.x) + (dif.y * dif.y) < SpawningPool.RadiusSqrd)
-                WillStick();
+            {
+                //if (GameObject.layer != Layers.PropStuck)
+                //     WillStick();
+                if(!HecticUFOGame.S.UFO.Collecting.Contains(this)
+                    && !HecticUFOGame.S.UFO.Collected.Contains(this)
+                    /*&& Rigid.velocity.sqrMagnitude < 0.2f*/)
+                {
+                    UnityUpdate = null;
+                    UnityOnCollisionEnter = null;
+                    HecticUFOGame.S.Props.Remove(this);
+                    TinyCoro.SpawnNext(DoConsume);
+                }
+            }
+        }
+
+        IEnumerator DoConsume()
+        {
+            ShadowCoro.Kill();
+            NeedsShadow = false;
+            GameObject.Destroy(Rigid);
+            GameObject.Destroy(GameObject.GetComponent<Collider>());
+
+            var start = WorldPosition;
+            var dest = start - new Vector3(0, Mathf.Max(Transform.localScale.x, Transform.localScale.y), 0);
+            var duration = 1f;
+            var elaped = 0f;
+            while(elaped < duration)
+            {
+                WorldPosition = Vector3.Lerp(start, dest, elaped / duration);
+                yield return null;
+                elaped += Time.deltaTime ;
+            }
+
+            SetActive(false);
         }
 
         public void WillStick()
@@ -50,15 +85,17 @@ namespace HecticUFO
 
         void OnAnyCollide(UnityObject me, Collision col)
         {
-            if (col.transform.gameObject.layer == Layers.GroundBounce)
-            {
-                //Debug.Log(GameObject.name + " hit ground");
-                if (UnityEngine.Random.Range(0, 100) <= 15)
-                {
-                    //Debug.Log(GameObject.name + " will stick!");
-                    WillStick();
-                }
-            }
+            //No more random shit
+            //if (col.transform.gameObject.layer == Layers.GroundBounce)
+            //{
+            //    //Debug.Log(GameObject.name + " hit ground");
+            //    if (Time.time > 20
+            //        && UnityEngine.Random.Range(0, 100) <= 2)
+            //    {
+            //        //Debug.Log(GameObject.name + " will stick!");
+            //        WillStick();
+            //    }
+            //}
         }
 
         void OnStickyCollide(UnityObject me, Collision col)

@@ -33,13 +33,17 @@ public class Assets
    }
    public class Prefabs
    {
+      public readonly static PrefabAsset Baby1Prefab = new PrefabAsset(@"Prefabs/Baby1");
+      public readonly static PrefabAsset Baby2Prefab = new PrefabAsset(@"Prefabs/Baby2");
+      public readonly static PrefabAsset Baby3Prefab = new PrefabAsset(@"Prefabs/Baby3");
+      public readonly static PrefabAsset BabyCordPrefab = new PrefabAsset(@"Prefabs/BabyCord");
       public readonly static PrefabAsset CameraPrefab = new PrefabAsset(@"Prefabs/Camera");
       public readonly static PrefabAsset CowPrefab = new PrefabAsset(@"Prefabs/Cow");
       public readonly static PrefabAsset ShadowPrefab = new PrefabAsset(@"Prefabs/Shadow");
       public readonly static PrefabAsset SpawningPoolPrefab = new PrefabAsset(@"Prefabs/SpawningPool");
       public readonly static PrefabAsset Tree1Prefab = new PrefabAsset(@"Prefabs/Tree1");
       public readonly static PrefabAsset UFOPrefab = new PrefabAsset(@"Prefabs/UFO");
-      public static Asset[] GetAssets() { return new Asset []{ CameraPrefab, CowPrefab, ShadowPrefab, SpawningPoolPrefab, Tree1Prefab, UFOPrefab }; }
+      public static Asset[] GetAssets() { return new Asset []{ Baby1Prefab, Baby2Prefab, Baby3Prefab, BabyCordPrefab, CameraPrefab, CowPrefab, ShadowPrefab, SpawningPoolPrefab, Tree1Prefab, UFOPrefab }; }
    }
    public class Textures
    {
@@ -49,6 +53,7 @@ public class Assets
       public readonly static Texture2dAsset BarnTexture2d = new Texture2dAsset(@"Textures/Barn");
       public readonly static Texture2dAsset BarnNoRoofTexture2d = new Texture2dAsset(@"Textures/BarnNoRoof");
       public readonly static Texture2dAsset barrelTexture2d = new Texture2dAsset(@"Textures/barrel");
+      public readonly static Texture2dAsset blackTexture2d = new Texture2dAsset(@"Textures/black");
       public readonly static Texture2dAsset BlueTexture2d = new Texture2dAsset(@"Textures/Blue");
       public readonly static Texture2dAsset CowTexture2d = new Texture2dAsset(@"Textures/Cow");
       public readonly static Texture2dAsset Cow_EatingTexture2d = new Texture2dAsset(@"Textures/Cow_Eating");
@@ -65,6 +70,6 @@ public class Assets
       public readonly static Texture2dAsset tree2Texture2d = new Texture2dAsset(@"Textures/tree2");
       public readonly static Texture2dAsset tree3Texture2d = new Texture2dAsset(@"Textures/tree3");
       public readonly static Texture2dAsset UmbilicalCordTexture2d = new Texture2dAsset(@"Textures/UmbilicalCord");
-      public static Asset[] GetAssets() { return new Asset []{ BabyStage1Texture2d, BabyStage2Texture2d, BabyStage3Texture2d, BarnTexture2d, BarnNoRoofTexture2d, barrelTexture2d, BlueTexture2d, CowTexture2d, Cow_EatingTexture2d, FeedingPoolTexture2d, GrassBaseTexture2d, HayBaleTexture2d, RedTexture2d, rock_static1Texture2d, rock_static2Texture2d, rock_throwableTexture2d, RoofTexture2d, Temp_UFOTexture2d, tree1Texture2d, tree2Texture2d, tree3Texture2d, UmbilicalCordTexture2d }; }
+      public static Asset[] GetAssets() { return new Asset []{ BabyStage1Texture2d, BabyStage2Texture2d, BabyStage3Texture2d, BarnTexture2d, BarnNoRoofTexture2d, barrelTexture2d, blackTexture2d, BlueTexture2d, CowTexture2d, Cow_EatingTexture2d, FeedingPoolTexture2d, GrassBaseTexture2d, HayBaleTexture2d, RedTexture2d, rock_static1Texture2d, rock_static2Texture2d, rock_throwableTexture2d, RoofTexture2d, Temp_UFOTexture2d, tree1Texture2d, tree2Texture2d, tree3Texture2d, UmbilicalCordTexture2d }; }
    }
 }

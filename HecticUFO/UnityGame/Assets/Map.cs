@@ -19,7 +19,8 @@ namespace HecticUFO
             {
                 new MapLayer(Brush.Water, Assets.Materials.BlueMaterial.Material) {Editable = false},
                 new MapLayer(Brush.Grass, Assets.Materials.GrassBaseMaterial.Material),
-                new MapLayer(Brush.SpawningPool, Assets.Materials.BarnMaterial.Material){ Editable = false },
+                new MapLayer(Brush.SpawningPool, null){ Editable = false },
+                new MapLayer(Brush.Shadow, null){ Editable = false },
                 new MapLayer(Brush.Trees, Assets.Materials.tree1Material.Material){ DebugOnly = true },
                 new MapLayer(Brush.Cows, Assets.Materials.CowMaterial.Material){ DebugOnly = true },
                 new MapLayer(Brush.Farm, Assets.Materials.BarnMaterial.Material){ DebugOnly = true },
@@ -39,7 +40,7 @@ namespace HecticUFO
                 layer.SetActive(false);
             }
 
-            ShadowHeight = height;
+            ShadowHeight = Layers.First(l => l.Brush == Brush.Shadow).WorldPosition.y;
 
             CurrentCells = Cell.ParseCells(csv, out MapSize);
             RegenerateMesh();
@@ -55,7 +56,7 @@ namespace HecticUFO
 
         public void RegenerateMesh()
         {
-            foreach(var layer in Layers)
+            foreach (var layer in Layers.Where(l => l.Editable && l.Filter != null))
             {
                 Debug.Log("Regenerate " + layer);
                 layer.Filter.mesh = FromCells(CurrentCells, layer.Brush, MapSize);
@@ -75,6 +76,9 @@ namespace HecticUFO
 
         public void Apply(Vector3 worldPos, Brush brush)
         {
+            var layer = Layers.FirstOrDefault(l => l.Brush == brush);
+            if (layer == null || !layer.Editable)
+                return;
             var x = Mathf.FloorToInt(worldPos.x / CellScale);
             var z = Mathf.FloorToInt(worldPos.z / CellScale);
 
@@ -84,6 +88,9 @@ namespace HecticUFO
 
         public void Clear(Vector3 worldPos, Brush brush)
         {
+            var layer = Layers.FirstOrDefault(l => l.Brush == brush);
+            if (layer == null || !layer.Editable)
+                return; 
             var x = Mathf.FloorToInt(worldPos.x / CellScale);
             var z = Mathf.FloorToInt(worldPos.z / CellScale);
 
@@ -146,6 +153,8 @@ namespace HecticUFO
             :base(brush.ToString())
         {
             Brush = brush;
+            if (sharedMaterial == null)
+                return;
             Filter = GameObject.AddComponent<MeshFilter>();
             var renderer = GameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = sharedMaterial;

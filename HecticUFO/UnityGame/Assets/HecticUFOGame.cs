@@ -13,6 +13,7 @@ namespace HecticUFO
         public UFO UFO;
         public Map Map;
         public SpawningPool SpawningPool;
+        public SpaceBaby SpaceBaby;
         public List<Prop> Props;
         public UnityObject PropParent;
         public UnityObject ShadowParent;
@@ -42,6 +43,10 @@ namespace HecticUFO
             var mapCenter = new Vector3(Map.MapSize / 2f, 0, Map.MapSize / 2f) * Map.CellScale;
 
             SpawningPool = new SpawningPool(mapCenter);
+
+            SpaceBaby = new SpaceBaby();
+            SpaceBaby.Parent = this;
+            SpaceBaby.WorldPosition = mapCenter;
 
             UFO = new UFO();
             UFO.Parent = this;
@@ -84,7 +89,6 @@ namespace HecticUFO
                         prop.Parent = PropParent;
                         Props.Add(prop);
                         prop.Transform.position = new Vector3((x + UnityEngine.Random.Range(0f, 1)) * Map.CellScale, prop.Transform.localScale.y / 2f, (z + UnityEngine.Random.Range(0f, 1)) * Map.CellScale);
-                        TinyCoro.SpawnNext(() => Shadow.Create(prop.GameObject));
                     }
                 }
             }
