@@ -25,9 +25,12 @@ namespace HecticUFO
         Vector3 WhobbleAmount;
         int CollectCountMax = 25;
 
+        Brush Brush;
+
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
         {
+            Brush = Brush.UFOAbduct;
             GroundCollider = GameObject.Find("GroundBounce").GetComponent<Collider>();
             Camera = new UFOCamera();
             Camera.Parent = this;
@@ -37,6 +40,14 @@ namespace HecticUFO
             {
                 Gizmos.color = Input.GetMouseButton(0) ? Color.red : Color.white;
                 Gizmos.DrawWireSphere(MouseTarget, CollectRadius);
+            };
+            UnityGUI += (me) =>
+            {
+                if(Brush != HecticUFO.Brush.UFOAbduct)
+                {
+                    GUI.color = Color.red;
+                    GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "Editing " + Brush + " layer");
+                }
             };
 
             //Whobble
@@ -73,6 +84,26 @@ namespace HecticUFO
                 MouseTarget = mouseHit.point;
                 Debug.DrawLine(MouseTarget, MouseTarget + Vector3.up, Color.red);
                 Camera.WorldPosition = Vector3.Lerp(WorldPosition, mouseHit.point, 0.25f);
+            }
+
+            if (Input.GetKeyUp(KeyCode.X))
+            {
+                Brush = (Brush)(((int)Brush) + 1);
+                HecticUFOGame.S.Map.BrushChanged(Brush);
+            }
+            if (Input.GetKeyUp(KeyCode.Z))
+            {
+                Brush = (Brush)(((int)Brush) - 1);
+                HecticUFOGame.S.Map.BrushChanged(Brush);
+            }
+
+            if(Brush != HecticUFO.Brush.UFOAbduct)
+            {
+                if(Input.GetMouseButton(0))
+                    HecticUFOGame.S.Map.Apply(MouseTarget, Brush);
+                else if(Input.GetMouseButton(1))
+                    HecticUFOGame.S.Map.Clear(MouseTarget, Brush);
+                return;
             }
 
             if(Input.GetMouseButton(0))

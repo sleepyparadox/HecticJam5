@@ -52,11 +52,16 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnityGame\Assets\Assets.cs" />
+    <Compile Include="UnityGame\Assets\Brush.cs" />
+    <Compile Include="UnityGame\Assets\Cell.cs" />
     <Compile Include="UnityGame\Assets\HecticUFOGame.cs" />
     <Compile Include="UnityGame\Assets\EngineScript.cs" />
     <Compile Include="UnityGame\Assets\Layers.cs" />
+    <Compile Include="UnityGame\Assets\Map.cs" />
+    <Compile Include="UnityGame\Assets\MapLoader.cs" />
     <Compile Include="UnityGame\Assets\Prop.cs" />
     <Compile Include="UnityGame\Assets\Shadow.cs" />
+    <Compile Include="UnityGame\Assets\SpawningPool.cs" />
     <Compile Include="UnityGame\Assets\UFO.cs" />
     <Compile Include="UnityGame\Assets\UFOCamera.cs" />
     <Compile Include="UnityGame\Assets\UnityTools\Asset\Asset.cs" />
@@ -79,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="UnityGame\Assets\StreamingAssets\Level1.csv" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -11,30 +11,82 @@ namespace HecticUFO
     {
         public static HecticUFOGame S;
         public UFO UFO;
+        public Map Map;
+        public SpawningPool SpawningPool;
         public List<Prop> Props;
         public UnityObject PropParent;
+        public UnityObject ShadowParent;
+
         public HecticUFOGame()
         {
             S = this;
-            
+
+            var csv = MapLoader.Load();
+            Map = new Map(csv);
+            Map.Parent = this;
+            for (var x = 0; x < Map.MapSize; ++x)
+            {
+                for (var z = 0; z < Map.MapSize; ++z)
+                {
+                    var cell = Map.CurrentCells[x, z];
+                    var xDist = ((float)x / Map.MapSize) - 0.5f;
+                    var zDist = ((float)z / Map.MapSize) - 0.5f;
+                    if ((xDist * xDist) + (zDist * zDist) < (0.5f * 0.5f))
+                    {
+                        cell.Apply(Brush.Grass);
+                    }
+                }
+            }
+            Map.RegenerateMesh();
+
+            var mapCenter = new Vector3(Map.MapSize / 2f, 0, Map.MapSize / 2f) * Map.CellScale;
+
+            SpawningPool = new SpawningPool(mapCenter);
+
             UFO = new UFO();
             UFO.Parent = this;
+            UFO.WorldPosition += mapCenter;
+
+            ShadowParent = new UnityObject("ShadowParent");
+            ShadowParent.Parent = this;
 
             PropParent = new UnityObject("PropParent");
             PropParent.Parent = this;
 
             Props = new List<Prop>();
 
-            var randRadius = 35f;
-            for (var i = 0; i < 160; i++ )
+            for (var x = 0; x < Map.MapSize; ++x)
             {
-                var tree = new Prop(Assets.Prefabs.Tree1Prefab);
-                tree.Parent = PropParent;
-                tree.Transform.localScale *= UnityEngine.Random.Range(1, 2f);
-                Props.Add(tree);
-                tree.GameObject.name = "Tree " + i;
-                tree.Transform.position = new Vector3(UnityEngine.Random.Range(-randRadius, randRadius), tree.Transform.localScale.y / 2f, UnityEngine.Random.Range(-randRadius, randRadius));
-                TinyCoro.SpawnNext(() => Shadow.Create(tree.GameObject));
+                for (var z = 0; z < Map.MapSize; ++z)
+                {
+                    var cell = Map.CurrentCells[x, z];
+                    var props = new List<Prop>();
+
+                    if(cell.Contains(Brush.Trees))
+                    {
+                        var count = UnityEngine.Random.Range(0, 3);
+                        for (var i = 0; i < count; ++i)
+                        {
+                            var prop = new Prop(Assets.Prefabs.Tree1Prefab);
+                            prop.Transform.localScale *= UnityEngine.Random.Range(1, 2f);
+                            props.Add(prop);
+                        }
+                    }
+                    if (cell.Contains(Brush.Cows))
+                    {
+                        var count = UnityEngine.Random.Range(0, 5);
+                        for (var i = 0; i < count; ++i)
+                            props.Add(new Prop(Assets.Prefabs.CowPrefab));
+                    }
+
+                    foreach (var prop in props)
+                    {
+                        prop.Parent = PropParent;
+                        Props.Add(prop);
+                        prop.Transform.position = new Vector3((x + UnityEngine.Random.Range(0f, 1)) * Map.CellScale, prop.Transform.localScale.y / 2f, (z + UnityEngine.Random.Range(0f, 1)) * Map.CellScale);
+                        TinyCoro.SpawnNext(() => Shadow.Create(prop.GameObject));
+                    }
+                }
             }
         }
     }

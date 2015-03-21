@@ -12,6 +12,7 @@ namespace HecticUFO
         public static IEnumerator Create(GameObject target)
         {
             var quad = new UnityObject(Assets.Prefabs.ShadowPrefab);
+            quad.Parent = HecticUFOGame.S.ShadowParent;
             var rigidbody = target.GetComponent<Rigidbody>();
             while(true)
             {
@@ -22,7 +23,7 @@ namespace HecticUFO
 
                     if (rigidbody == null || !rigidbody.IsSleeping())
                     {
-                        quad.Transform.position = new Vector3(target.transform.position.x, 0.05f, target.transform.position.z);
+                        quad.Transform.position = new Vector3(target.transform.position.x, HecticUFOGame.S.Map.ShadowHeight, target.transform.position.z);
                         quad.Transform.localScale = new Vector3(target.transform.localScale.x, 1f, target.transform.localScale.z);
                     }
                 }

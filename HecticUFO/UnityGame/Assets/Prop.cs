@@ -21,7 +21,18 @@ namespace HecticUFO
             OrigonalAngularDrag = Rigid.angularDrag;
             OrigonalMass = Rigid.mass;
 
+            UnityUpdate += CheckForStickySpawningPool;
             UnityOnCollisionEnter += OnAnyCollide;
+        }
+
+        void CheckForStickySpawningPool(UnityObject me)
+        {
+            if(GameObject.layer == Layers.PropStuck)
+                return;
+
+            var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
+            if ((dif.x * dif.x) + (dif.y * dif.y) < SpawningPool.RadiusSqrd)
+                WillStick();
         }
 
         public void WillStick()
@@ -41,10 +52,10 @@ namespace HecticUFO
         {
             if (col.transform.gameObject.layer == Layers.GroundBounce)
             {
-                Debug.Log(GameObject.name + " hit ground");
+                //Debug.Log(GameObject.name + " hit ground");
                 if (UnityEngine.Random.Range(0, 100) <= 15)
                 {
-                    Debug.Log(GameObject.name + " will stick!");
+                    //Debug.Log(GameObject.name + " will stick!");
                     WillStick();
                 }
             }
@@ -54,7 +65,7 @@ namespace HecticUFO
         {
             if(col.transform.gameObject.layer == Layers.GroundStuck)
             {
-                Debug.Log(GameObject.name + " hit " + col.transform.gameObject.name);
+                //Debug.Log(GameObject.name + " hit " + col.transform.gameObject.name);
                 Rigid.velocity = Vector3.zero;
                 Rigid.angularVelocity = Vector3.zero;
                 //Rigid.angularVelocity = Vector3.zero;
@@ -65,7 +76,10 @@ namespace HecticUFO
             }
             else
             {
-                RestoreDrag();
+                //Restore drag outside the pool
+                var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
+                if ((dif.x * dif.x) + (dif.y * dif.y) > SpawningPool.RadiusSqrd)
+                    RestoreDrag();
             }
         }
 
