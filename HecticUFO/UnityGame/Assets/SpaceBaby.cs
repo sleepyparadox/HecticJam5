@@ -37,19 +37,20 @@ namespace HecticUFO
             Baby3.SetActive(false);
 
             UnityUpdate += UpdateBaby;
-            TinyCoro.SpawnNext(DoFattenBaby);
+            //TinyCoro.SpawnNext(DoFattenBaby);
         }
 
         void UpdateBaby(UnityObject me)
         {
+            var offset = new Vector3(0, 0, 0.05f);
             var targetScale = Vector3.one * (1f + (Food * 0.1f));
             Cord.Transform.localScale = Vector3.Lerp(Cord.Transform.localScale, targetScale, Time.deltaTime);
             Baby1.Transform.localScale = Cord.Transform.localScale;
-            Baby1.WorldPosition = AttachAt.position;
+            Baby1.WorldPosition = AttachAt.position + offset;
             Baby2.Transform.localScale = Cord.Transform.localScale;
-            Baby2.WorldPosition = AttachAt.position;
+            Baby2.WorldPosition = AttachAt.position + offset;
             Baby3.Transform.localScale = Cord.Transform.localScale;
-            Baby3.WorldPosition = AttachAt.position;
+            Baby3.WorldPosition = AttachAt.position + offset;
         }
         
         public int Food
@@ -71,19 +72,19 @@ namespace HecticUFO
             }
         }
 
-        IEnumerator DoFattenBaby()
-        {
-            var elapsed = 0f;
-            while(true)
-            {
-                if(elapsed > 1)
-                {
-                    Food++;
-                    elapsed -= 1f;
-                }
-                yield return null;
-                elapsed += Time.deltaTime;
-            }
-        }
+        //IEnumerator DoFattenBaby()
+        //{
+        //    var elapsed = 0f;
+        //    while(true)
+        //    {
+        //        if(elapsed > 1)
+        //        {
+        //            Food++;
+        //            elapsed -= 1f;
+        //        }
+        //        yield return null;
+        //        elapsed += Time.deltaTime;
+        //    }
+        //}
     }
 }

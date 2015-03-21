@@ -97,6 +97,23 @@ namespace HecticUFO
                 HecticUFOGame.S.Map.BrushChanged(Brush);
             }
 
+            if(Input.GetKeyUp(KeyCode.Backspace))
+            {
+                PlayerPrefs.SetInt("x", (int)WorldPosition.x);
+                PlayerPrefs.SetInt("z", (int)WorldPosition.z);
+                PlayerPrefs.Save();
+                Application.LoadLevel(0);
+                return;
+            }
+
+            if(PlayerPrefs.HasKey("x") && PlayerPrefs.HasKey("z"))
+            {
+                WorldPosition = new Vector3(PlayerPrefs.GetInt("x"), 0, PlayerPrefs.GetInt("z"));
+                PlayerPrefs.DeleteAll();
+                PlayerPrefs.Save();
+                return;
+            }
+
             if(Brush != HecticUFO.Brush.UFOAbduct)
             {
                 if(Input.GetMouseButton(0))

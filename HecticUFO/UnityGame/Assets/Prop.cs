@@ -10,6 +10,7 @@ namespace HecticUFO
 {
     public class Prop : UnityObject
     {
+        public int FoodValue;
         public bool NeedsShadow = true;
         public Rigidbody Rigid;
         float OrigonalDrag;
@@ -60,9 +61,19 @@ namespace HecticUFO
             var dest = start - new Vector3(0, Mathf.Max(Transform.localScale.x, Transform.localScale.y), 0);
             var duration = 1f;
             var elaped = 0f;
+            int foodToGive = FoodValue;
+
             while(elaped < duration)
             {
                 WorldPosition = Vector3.Lerp(start, dest, elaped / duration);
+
+                if(foodToGive > 0
+                    && elaped >= duration / 2f)
+                {
+                    HecticUFOGame.S.SpaceBaby.Food += foodToGive;
+                    foodToGive = 0;
+                }
+
                 yield return null;
                 elaped += Time.deltaTime ;
             }
@@ -127,6 +138,5 @@ namespace HecticUFO
             Rigid.mass = OrigonalMass;
             Rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
         }
-
     }
 }
