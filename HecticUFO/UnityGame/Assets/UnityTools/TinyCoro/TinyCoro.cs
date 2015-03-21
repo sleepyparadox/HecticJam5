@@ -16,6 +16,7 @@ namespace UnityTools_4_6
                 return;
             if (OnFinished != null)
                 OnFinished(this, TinyCoroFinishReason.Killed);
+            Alive = false;
         }
 
         protected TinyCoro(Func<IEnumerator> operation)

@@ -143,6 +143,7 @@ namespace HecticUFO
             mesh.triangles = tris.ToArray();
 
             mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
 
             return mesh;
         }

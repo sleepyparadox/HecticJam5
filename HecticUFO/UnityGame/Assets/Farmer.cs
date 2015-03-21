@@ -10,11 +10,13 @@ namespace HecticUFO
 {
     public class Farmer : Prop
     {
+        const float ThreatRange = 15f;
         public Farmer()
             : base(Assets.Prefabs.CowPrefab)
         {
             Transform.localScale *= 2f;
             TinyCoro.SpawnNext(BeFarmer);
+            TinyCoro.SpawnNext(BeViolent);
             UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 6 * Time.deltaTime);
         }
 
@@ -28,7 +30,7 @@ namespace HecticUFO
                 var direction = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
 
                 var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
-                if (ufoFlee.sqrMagnitude < 30 * 30)
+                if (ufoFlee.sqrMagnitude < ThreatRange * ThreatRange)
                     direction += ufoFlee * -3f; //REVERSE, FARMER ATTACKS UFO
 
                 //Go up down more
@@ -47,6 +49,33 @@ namespace HecticUFO
 
                 yield return TinyCoro.Wait(0.25f);
                 yield return TinyCoro.WaitUntil(StunWearsOff);
+            }
+        }
+
+        float nextShotAfter;
+
+        IEnumerator BeViolent()
+        {
+            while (AIAlive)
+            {
+                yield return TinyCoro.WaitUntil(() =>
+                {
+                    if (Time.time <= nextShotAfter
+                        || HecticUFOGame.S.UFO.Collecting.Contains(this)
+                        || HecticUFOGame.S.UFO.Collected.Contains(this))
+                        return false;
+
+                    var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
+                    return (ufoFlee.sqrMagnitude < ThreatRange * ThreatRange);
+                });
+                //yield return TinyCoro.WaitUntil(StunWearsOff);
+                //if(AIAlive)
+                {
+                    var random = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f))
+                                    * 0.5f;
+                    new Bullet(WorldPosition, HecticUFOGame.S.UFO.Mesh.transform.position + random);
+                    nextShotAfter = Time.time + UnityEngine.Random.Range(2, 3);
+                }
             }
         }
 

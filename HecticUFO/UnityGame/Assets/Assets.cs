@@ -46,13 +46,14 @@ public class Assets
       public readonly static PrefabAsset Baby2Prefab = new PrefabAsset(@"Prefabs/Baby2");
       public readonly static PrefabAsset Baby3Prefab = new PrefabAsset(@"Prefabs/Baby3");
       public readonly static PrefabAsset BabyCordPrefab = new PrefabAsset(@"Prefabs/BabyCord");
+      public readonly static PrefabAsset BulletPrefab = new PrefabAsset(@"Prefabs/Bullet");
       public readonly static PrefabAsset CameraPrefab = new PrefabAsset(@"Prefabs/Camera");
       public readonly static PrefabAsset CowPrefab = new PrefabAsset(@"Prefabs/Cow");
       public readonly static PrefabAsset ShadowPrefab = new PrefabAsset(@"Prefabs/Shadow");
       public readonly static PrefabAsset SpawningPoolPrefab = new PrefabAsset(@"Prefabs/SpawningPool");
       public readonly static PrefabAsset Tree1Prefab = new PrefabAsset(@"Prefabs/Tree1");
       public readonly static PrefabAsset UFOPrefab = new PrefabAsset(@"Prefabs/UFO");
-      public static Asset[] GetAssets() { return new Asset []{ Baby1Prefab, Baby2Prefab, Baby3Prefab, BabyCordPrefab, CameraPrefab, CowPrefab, ShadowPrefab, SpawningPoolPrefab, Tree1Prefab, UFOPrefab }; }
+      public static Asset[] GetAssets() { return new Asset []{ Baby1Prefab, Baby2Prefab, Baby3Prefab, BabyCordPrefab, BulletPrefab, CameraPrefab, CowPrefab, ShadowPrefab, SpawningPoolPrefab, Tree1Prefab, UFOPrefab }; }
    }
    public class Textures
    {

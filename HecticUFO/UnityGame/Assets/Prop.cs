@@ -17,7 +17,6 @@ namespace HecticUFO
         float OrigonalDrag;
         float OrigonalAngularDrag;
         float OrigonalMass;
-        private TinyCoro ShadowCoro;
         public Prop(PrefabAsset prefab)
             :base (prefab)
         {
@@ -29,7 +28,7 @@ namespace HecticUFO
             UnityUpdate += CheckForStickySpawningPool;
             UnityOnCollisionEnter += OnAnyCollide;
 
-            ShadowCoro = TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
         }
 
         void CheckForStickySpawningPool(UnityObject me)
@@ -53,7 +52,6 @@ namespace HecticUFO
 
         IEnumerator DoConsume()
         {
-            ShadowCoro.Kill();
             NeedsShadow = false;
             GameObject.Destroy(Rigid);
             GameObject.Destroy(GameObject.GetComponent<Collider>());

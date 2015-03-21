@@ -11,10 +11,12 @@ namespace HecticUFO
     {
         public static IEnumerator Create(GameObject target)
         {
+            if (target == null)
+                yield break;
             var quad = new UnityObject(Assets.Prefabs.ShadowPrefab);
             quad.Parent = HecticUFOGame.S.ShadowParent;
             var rigidbody = target.GetComponent<Rigidbody>();
-            while(true)
+            while (target != null)
             {
                 if (target.activeSelf)
                 {
@@ -34,6 +36,7 @@ namespace HecticUFO
                 }
                 yield return null;
             }
+            quad.Dispose();
         }
     }
 }

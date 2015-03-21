@@ -13,6 +13,7 @@ namespace HecticUFO
         public const int GroundStuck = 11;
         public const int GroundMesh = 12;
         public const int UFOBeam = 13;
-
+        public const int UFO = 14;
+        public const int Bullets = 15;
     }
 }

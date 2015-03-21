@@ -20,7 +20,7 @@ namespace HecticUFO
         public float ShootVelocity = 40f;
         public List<Prop> Collecting = new List<Prop>();
         public List<Prop> Collected = new List<Prop>();
-        private UnityEngine.GameObject Mesh;
+        public UnityEngine.GameObject Mesh;
         private Vector3 MeshStartPos;
         Vector3 WhobbleAmount;
         int CollectCountMax = 25;
@@ -65,6 +65,19 @@ namespace HecticUFO
 
         float CargoModifier = 1f;
         private UFOBeam Beam;
+
+        int _hp = 7;
+        public int Health
+        {
+            get
+            {
+                return _hp;
+            }
+            set
+            {
+                _hp = value;
+            }
+        }
         void HandleInput(UnityObject me)
         {
             var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
