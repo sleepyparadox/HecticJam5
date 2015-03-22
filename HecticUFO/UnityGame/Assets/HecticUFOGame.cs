@@ -82,7 +82,7 @@ namespace HecticUFO
                         var count = UnityEngine.Random.Range(0, 5);
                         for (var i = 0; i < count; ++i)
                             props.Add(new Cow { FoodValue = 1});
-                        props.Add(new Farmer() { FoodValue = 2});
+                        props.Add(new Farmer() { FoodValue = 1});
                     }
 
                     foreach (var prop in props)

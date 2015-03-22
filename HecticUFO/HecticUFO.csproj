@@ -62,6 +62,7 @@
     <Compile Include="UnityGame\Assets\Layers.cs" />
     <Compile Include="UnityGame\Assets\Map.cs" />
     <Compile Include="UnityGame\Assets\MapLoader.cs" />
+    <Compile Include="UnityGame\Assets\MusicAudio.cs" />
     <Compile Include="UnityGame\Assets\Prop.cs" />
     <Compile Include="UnityGame\Assets\Shadow.cs" />
     <Compile Include="UnityGame\Assets\SpaceBaby.cs" />

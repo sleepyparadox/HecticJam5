@@ -10,19 +10,25 @@ namespace HecticUFO
 {
     public class SpaceBaby : UnityObject
     {
-        public float Scale = 1f;
-        int Baby2At = 10;
-        int Baby3At = 20;
+        public float ScaleStart = 0.75f;
+        public float ScaleEnd = 5f;
+        float Scale = 0;
 
         UnityObject Cord;
         private UnityObject Baby1;
         private UnityObject Baby2;
         private UnityObject Baby3;
         private int _food = 0;
+        
+        private const int MaxFood = 30;
+        int Baby2At = 10;
+        int Baby3At = 20;
+
         private UnityEngine.Transform AttachAt;
 
         public SpaceBaby()
         {
+            Scale = ScaleStart;
             Cord = new UnityObject(Assets.Prefabs.BabyCordPrefab);
             Cord.Parent = this;
             AttachAt = Cord.FindChild("AttachAt").transform;
@@ -43,14 +49,17 @@ namespace HecticUFO
         void UpdateBaby(UnityObject me)
         {
             var offset = new Vector3(0, 0, 0.05f);
-            var targetScale = Vector3.one * (1f + (Food * 0.1f));
-            Cord.Transform.localScale = Vector3.Lerp(Cord.Transform.localScale, targetScale, Time.deltaTime);
+            var progress = (float)Food / MaxFood;
+            var targetScale = Mathf.Lerp(ScaleStart, ScaleEnd, progress);
+            Scale = Mathf.Lerp(Scale, targetScale, Time.deltaTime);
+
+            Cord.Transform.localScale = Vector3.one * Scale;
             Baby1.Transform.localScale = Cord.Transform.localScale;
             Baby1.WorldPosition = AttachAt.position + offset;
             Baby2.Transform.localScale = Cord.Transform.localScale;
             Baby2.WorldPosition = AttachAt.position + offset;
             Baby3.Transform.localScale = Cord.Transform.localScale;
-            Baby3.WorldPosition = AttachAt.position + offset;
+            Baby3.WorldPosition = AttachAt.position;
         }
         
         public int Food
@@ -59,6 +68,11 @@ namespace HecticUFO
             set
             {
                 _food = value;
+                if (_food > MaxFood)
+                    _food = MaxFood;
+
+                Debug.Log("Food set to " + Food);
+
                 if (Food == Baby2At)
                 {
                     Baby1.SetActive(false);
@@ -69,6 +83,9 @@ namespace HecticUFO
                     Baby2.SetActive(false);
                     Baby3.SetActive(true);
                 }
+
+                if((Food - 1) % 5 == 0)
+                    MusicAudio.S.Play(MusicAudio.S.BabyGrow, WorldPosition, AudioStackRule.OneShot);
             }
         }
 

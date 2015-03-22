@@ -34,19 +34,24 @@ namespace HecticUFO
         void CheckForStickySpawningPool(UnityObject me)
         {
             var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
-            if ((dif.x * dif.x) + (dif.y * dif.y) < SpawningPool.RadiusSqrd)
+            if ((dif.x * dif.x) + (dif.z * dif.z) < SpawningPool.RadiusSqrd)
             {
-                //if (GameObject.layer != Layers.PropStuck)
-                //     WillStick();
+                if (GameObject.layer != Layers.PropStuck)
+                    WillStick();
                 if(!HecticUFOGame.S.UFO.Collecting.Contains(this)
                     && !HecticUFOGame.S.UFO.Collected.Contains(this)
-                    /*&& Rigid.velocity.sqrMagnitude < 0.2f*/)
+                    && Rigid.velocity.sqrMagnitude < 0.2f)
                 {
                     UnityUpdate = null;
                     UnityOnCollisionEnter = null;
                     HecticUFOGame.S.Props.Remove(this);
                     TinyCoro.SpawnNext(DoConsume);
                 }
+            }
+            else
+            {
+                if (GameObject.layer != Layers.PropBounce)
+                    WillBounce();
             }
         }
 
@@ -95,6 +100,12 @@ namespace HecticUFO
 
         void OnAnyCollide(UnityObject me, Collision col)
         {
+            if(col.gameObject.layer == Layers.GroundBounce
+                && Rigid != null
+                && Rigid.velocity.y < -0f
+                 && !StunWearsOff())
+                MusicAudio.S.Play(MusicAudio.S.Thump, WorldPosition, AudioStackRule.Replace, Rigid.velocity.magnitude / 3f);
+                
             //No more random shit
             //if (col.transform.gameObject.layer == Layers.GroundBounce)
             //{
@@ -125,7 +136,7 @@ namespace HecticUFO
             {
                 //Restore drag outside the pool
                 var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
-                if ((dif.x * dif.x) + (dif.y * dif.y) > SpawningPool.RadiusSqrd)
+                if ((dif.x * dif.x) + (dif.z * dif.z) > SpawningPool.RadiusSqrd)
                     RestoreDrag();
             }
         }

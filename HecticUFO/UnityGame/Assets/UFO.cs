@@ -26,8 +26,25 @@ namespace HecticUFO
         int CollectCountMax = 25;
         List<GameObject> HPParticles;
         ParticleSystem FireEffect;
+        TinyCoro HurtShake;
 
         Brush Brush;
+
+        IEnumerator DoHurt()
+        {
+            var elapsed = 0f;
+            var dur = 0.5f;
+            var amount = UnityEngine.Random.Range(0, 100) > 50 ? 1f : -1f;
+            amount *= 1f;
+            while(elapsed < dur)
+            {
+                var nt = elapsed / dur;
+                Mesh.transform.localPosition = new Vector3(Mathf.Sin(nt * Mathf.PI) * amount, Mesh.transform.localPosition.y, Mesh.transform.localPosition.z);
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+            Mesh.transform.localPosition = new Vector3(0, Mesh.transform.localPosition.y, Mesh.transform.localPosition.z);
+        }
 
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
@@ -60,18 +77,19 @@ namespace HecticUFO
             WhobbleAmount = Vector3.up * 0.25f;
 
             HPParticles = new List<GameObject>();
-            for (var i = 0; i < Mesh.transform.childCount - 2; ++i)
+            for (var i = 0; i < Mesh.transform.childCount - 3; ++i)
                 HPParticles.Add(Mesh.transform.GetChild(i).gameObject);
             _hp = HPParticles.Count;
             FireEffect = Mesh.transform.FindChild("Fire").GetComponent<ParticleSystem>();
             FireEffect.enableEmission = false;
             SmokeEffect = Mesh.transform.FindChild("Smoke").GetComponent<ParticleSystem>();
             SmokeEffect.enableEmission = false;
+            
 
             TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
 
             //TODO, not whobbly dest
-            CollectDest = Mesh.transform; 
+            CollectDest = Mesh.transform.FindChild("BeamGlow");
         }
 
         float CargoModifier = 1f;
@@ -90,8 +108,15 @@ namespace HecticUFO
                 _hp = value;
                 for (var i = 0; i < HPParticles.Count; ++i)
                     HPParticles[i].SetActive(_hp > i);
+                
+                if (HurtShake != null)
+                    HurtShake.Kill();
 
-                if(_hp <= 0)
+                if(_hp > 0)
+                {
+                    HurtShake = TinyCoro.SpawnNext(DoHurt);
+                }
+                else
                 {
                     UnityUpdate = null;
                     UnityUpdate += (me) => 
@@ -99,6 +124,7 @@ namespace HecticUFO
                         Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 6 * Time.deltaTime);
                         Camera.WorldPosition = new Vector3(Mesh.transform.position.x, 0, Mesh.transform.position.z);
                     };
+                    Beam.SetActive(false);
                     var rigid = Mesh.AddComponent<Rigidbody>();
                     rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
 
@@ -116,6 +142,14 @@ namespace HecticUFO
         }
         void HandleInput(UnityObject me)
         {
+            foreach (var prop in Collected)
+                prop.LastAbductedAt = Time.time;
+            foreach (var prop in Collecting)
+                prop.LastAbductedAt = Time.time;
+
+            Beam.SetActive(Input.GetMouseButton(0));
+            Beam.Weak = Collecting.Count + Collected.Count >= CollectCountMax;
+
             var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
             CargoModifier = Mathf.Lerp(CargoModifier, targetCargoModifer, Time.deltaTime);
             //Debug.Log((Collecting.Count + Collected.Count) + " of " + CollectCountMax + ", " + Collecting.Count + " collecting, " + Collected.Count + " collected");
@@ -124,10 +158,11 @@ namespace HecticUFO
             WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * modifiedSpeed * Time.deltaTime;
             WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * modifiedSpeed * Time.deltaTime;
 
-            var heightWithWeight = MeshStartPos * (0.5f + (0.5f * CargoModifier));
+            var heightWithWeight = MeshStartPos * (0.35f + (0.65f * CargoModifier));
             //Debug.Log("Cargo Mod " + CargoModifier + ", Height " + heightWithWeight);
-            var whobble = Mathf.Sin(Time.time * 10f) * WhobbleAmount;
-            Mesh.transform.localPosition = heightWithWeight + whobble;
+            var whobble = Mathf.Sin(Time.time * 10f) * WhobbleAmount * CargoModifier;
+            var oldX = Vector3.right * Mesh.transform.localPosition.x;
+            Mesh.transform.localPosition = heightWithWeight + whobble + oldX;
 
             var mouseRay = Camera.UnityCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit mouseHit;
@@ -136,6 +171,13 @@ namespace HecticUFO
                 MouseTarget = mouseHit.point;
                 Debug.DrawLine(MouseTarget, MouseTarget + Vector3.up, Color.red);
                 Camera.WorldPosition = Vector3.Lerp(WorldPosition, mouseHit.point, 0.25f);
+            }
+
+            const float mouseRadius = 10f;
+            var mouseDir = (MouseTarget - WorldPosition);
+            if(mouseDir.sqrMagnitude > (mouseRadius * mouseRadius))
+            {
+                MouseTarget = WorldPosition + (mouseDir.normalized * mouseRadius);
             }
 
             if (Input.GetKeyUp(KeyCode.X))
@@ -177,6 +219,7 @@ namespace HecticUFO
 
             if(Input.GetMouseButton(0))
             {
+                MusicAudio.S.Play(MusicAudio.S.UFOSuck, Mesh.transform.position, AudioStackRule.Singleton);
                 var canCollect = (Collected.Count + Collecting.Count) < CollectCountMax;
                 var rays = new List<Ray>();
                 for (float x = -CollectRadius; x <= CollectRadius; x += CollectRadius / 5f)
@@ -215,10 +258,13 @@ namespace HecticUFO
                     }
                 }
             }
-            else if(Input.GetMouseButtonDown(1)
-                && Collected.Any())
+            else
             {
-                TinyCoro.SpawnNext(PreformSpew);
+                if(Input.GetMouseButtonDown(1)
+                    && Collected.Any())
+                {
+                    TinyCoro.SpawnNext(PreformSpew);
+                }
             }
         }
 
@@ -237,6 +283,8 @@ namespace HecticUFO
                 {
                     var projectile = Collected[0];
                     Collected.RemoveAt(0);
+
+                    MusicAudio.S.Play(MusicAudio.S.UFOBlow, Mesh.transform.position, AudioStackRule.OneShot);
 
                     //projectile.GameObject.layer = UnityEngine.Random.Range(0, 100) <= 50 ? Layers.PropStuck : Layers.PropBounce;
                     projectile.WillBounce();

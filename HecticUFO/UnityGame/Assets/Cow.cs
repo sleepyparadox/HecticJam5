@@ -41,6 +41,10 @@ namespace HecticUFO
 
                 Rigid.AddForce(new Vector3(direction.x, 2f, direction.z) * 200f);
 
+                if ((HecticUFOGame.S.UFO.WorldPosition - WorldPosition).sqrMagnitude < 50
+                    && UnityEngine.Random.Range(0, 100) < 10)
+                    MusicAudio.S.Play(MusicAudio.S.CowMoo, WorldPosition);
+
                 yield return TinyCoro.Wait(0.1f);
                 yield return TinyCoro.WaitUntil(StunWearsOff);
                 if (!AIAlive)

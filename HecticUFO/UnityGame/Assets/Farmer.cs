@@ -61,6 +61,7 @@ namespace HecticUFO
                 yield return TinyCoro.WaitUntil(() =>
                 {
                     if (Time.time <= nextShotAfter
+                        || !StunWearsOff()
                         || HecticUFOGame.S.UFO.Collecting.Contains(this)
                         || HecticUFOGame.S.UFO.Collected.Contains(this))
                         return false;

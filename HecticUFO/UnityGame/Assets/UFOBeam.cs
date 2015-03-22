@@ -8,14 +8,22 @@ namespace HecticUFO
 {
     public class UFOBeam : UnityObject
     {
+        public bool Weak;
+
         const int NumRayPoints = 24;
         private MeshFilter Filter;
+        Color DefaultColor;
+        Color WeakColor;
+        private MeshRenderer Renderer;
+
         public UFOBeam()
         {
             GameObject.layer = Layers.UFOBeam;
             Filter = GameObject.AddComponent<MeshFilter>();
-            var renderer = GameObject.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = Assets.MaterialsParticles.greenpixelMaterial.Material;
+            Renderer = GameObject.AddComponent<MeshRenderer>();
+            Renderer.material = Assets.MaterialsParticles.greenpixelMaterial.Material;
+            DefaultColor = Renderer.material.GetColor("_TintColor");
+            WeakColor = new Color(DefaultColor.r, DefaultColor.g, DefaultColor.b, 0.05f);
 
             var verts = new List<Vector3>();
             for (var i = 0; i < NumRayPoints; i++)
@@ -48,6 +56,8 @@ namespace HecticUFO
 
         void UpdateBeamEffect(UnityObject u)
         {
+            Renderer.material.SetColor("_TintColor", Weak ? WeakColor : DefaultColor);
+
             WorldPosition = Vector3.zero;
             var points = new List<Vector3>();
             for (var a = 0f; a <= Mathf.PI * 2f; a += Mathf.PI * 2f / (NumRayPoints - 1))
