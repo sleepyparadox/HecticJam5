@@ -8,6 +8,10 @@ namespace UnityTools_4_6
 {
     public static class AssetGenerator
     {
+        static string[] invalidChars = new string[]
+        {
+            ".", " ", "-","(",")",
+        };
 #if UNITY_EDITOR || (!UNITY_WEBPLAYER && !UNITY_ANDROID && !UNITY_IPHONE)
         public static void GenerateAssetCodeFile(string assetsDirectory, string outputFile, string outputClassName)
         {
@@ -51,7 +55,9 @@ namespace UnityTools_4_6
             var files = dir.GetFiles();
             files = files.Where(f => extensions.ContainsKey(f.Extension)).ToArray();
 
-            var safeDirName = dir.Name.Replace(".", "_").Replace(" ", "_").Replace("-", "_");
+            var safeDirName = dir.Name;
+            foreach (var invalidChar in invalidChars)
+                safeDirName = safeDirName.Replace(invalidChar, "_");
 
             if (safeDirName == "Resources")
                 safeDirName = outputNamespace;
@@ -71,7 +77,10 @@ namespace UnityTools_4_6
                 foreach (var file in files)
                 {
                     string assetType = extensions[file.Extension];
-                    var safeFileName = file.Name.Replace(file.Extension, string.Empty).Replace(".", "_").Replace(" ", "_"); ;
+                    var safeFileName = file.Name.Replace(file.Extension, string.Empty);
+                    foreach (var invalidChar in invalidChars)
+                        safeFileName = safeFileName.Replace(invalidChar, "_");
+                    
                     //Allow files of same name with diff type to exist
                     safeFileName += assetType.Replace("Asset", string.Empty);
 

@@ -66,6 +66,7 @@
     <Compile Include="UnityGame\Assets\Prop.cs" />
     <Compile Include="UnityGame\Assets\Shadow.cs" />
     <Compile Include="UnityGame\Assets\SpaceBaby.cs" />
+    <Compile Include="UnityGame\Assets\SpaceBabyGohzilla.cs" />
     <Compile Include="UnityGame\Assets\SpawningPool.cs" />
     <Compile Include="UnityGame\Assets\UFO.cs" />
     <Compile Include="UnityGame\Assets\UFOBeam.cs" />
