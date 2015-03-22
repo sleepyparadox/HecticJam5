@@ -8,8 +8,8 @@ namespace HecticUFO
 {
     public class SpawningPool : UnityObject
     {
-        public const float Radius = 7;
-        public const float RadiusSqrd = Radius * Radius;
+        public float Radius = 7;
+        public float RadiusSqrd { get { return Radius * Radius; } }
         public SpawningPool(Vector3 mapCenter)
             : base(Assets.Prefabs.SpawningPoolPrefab)
         {

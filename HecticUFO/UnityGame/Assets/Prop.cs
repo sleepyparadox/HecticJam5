@@ -34,7 +34,7 @@ namespace HecticUFO
         void CheckForStickySpawningPool(UnityObject me)
         {
             var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
-            if ((dif.x * dif.x) + (dif.z * dif.z) < SpawningPool.RadiusSqrd)
+            if ((dif.x * dif.x) + (dif.z * dif.z) < HecticUFOGame.S.SpawningPool.RadiusSqrd)
             {
                 if (GameObject.layer != Layers.PropStuck)
                     WillStick();
@@ -104,7 +104,7 @@ namespace HecticUFO
                 && Rigid != null
                 && Rigid.velocity.y < -0f
                  && !StunWearsOff())
-                MusicAudio.S.Play(MusicAudio.S.Thump, WorldPosition, AudioStackRule.Replace, Rigid.velocity.magnitude / 3f);
+                MusicAudio.S.Play(MusicAudio.S.Thump, WorldPosition, AudioStackRule.Replace, Mathf.Clamp01(Rigid.velocity.magnitude / 3f));
                 
             //No more random shit
             //if (col.transform.gameObject.layer == Layers.GroundBounce)
@@ -136,7 +136,7 @@ namespace HecticUFO
             {
                 //Restore drag outside the pool
                 var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
-                if ((dif.x * dif.x) + (dif.z * dif.z) > SpawningPool.RadiusSqrd)
+                if ((dif.x * dif.x) + (dif.z * dif.z) > HecticUFOGame.S.SpawningPool.RadiusSqrd)
                     RestoreDrag();
             }
         }

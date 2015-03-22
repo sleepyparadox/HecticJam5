@@ -20,9 +20,9 @@ namespace HecticUFO
         private UnityObject Baby3;
         private int _food = 0;
         
-        private const int MaxFood = 30;
-        int Baby2At = 10;
-        int Baby3At = 20;
+        private const int MaxFood = 9;
+        int Baby2At = 3;
+        int Baby3At = 6;
 
         private UnityEngine.Transform AttachAt;
 
@@ -67,10 +67,13 @@ namespace HecticUFO
             get { return _food; }
             set
             {
-                _food = value;
-                if (_food > MaxFood)
-                    _food = MaxFood;
+                var val = value;
+                if (val > MaxFood)
+                    val = MaxFood;
+                if(_food == val)
+                    return;
 
+                _food = val;
                 Debug.Log("Food set to " + Food);
 
                 if (Food == Baby2At)
@@ -84,9 +87,34 @@ namespace HecticUFO
                     Baby3.SetActive(true);
                 }
 
+                if(Food == MaxFood)
+                    TinyCoro.SpawnNext(DoBirth);
+
                 if((Food - 1) % 5 == 0)
                     MusicAudio.S.Play(MusicAudio.S.BabyGrow, WorldPosition, AudioStackRule.OneShot);
             }
+        }
+
+        IEnumerator DoBirth()
+        {
+            
+            var elapsed = 0f;
+            var duration = 1f;
+            var startRadius = HecticUFOGame.S.SpawningPool.Radius;
+            var startScale = HecticUFOGame.S.SpawningPool.Transform.localScale;
+            while(elapsed < duration)
+            {
+                var nt = elapsed / duration;
+
+                HecticUFOGame.S.SpawningPool.Radius = Mathf.Lerp(startRadius, 0f, nt);
+                HecticUFOGame.S.SpawningPool.Transform.localScale = Vector3.Lerp(startScale, Vector3.zero, nt);
+
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+
+            new SpaceBabyGohzilla(Scale, AttachAt.position);
+            SetActive(false);
         }
 
         //IEnumerator DoFattenBaby()
