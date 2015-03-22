@@ -55,7 +55,10 @@ namespace HecticUFO
             UFO.Parent = this;
             UFO.WorldPosition += MapCenter + new Vector3(0, 0, -25f);
 
-            new UnityObject(Assets.Prefabs.ControlsPrefab).WorldPosition = UFO.WorldPosition + new Vector3(0, 1f, 0f);
+            var tut = new UnityObject(Assets.Prefabs.ControlsPrefab);
+            tut.WorldPosition = UFO.WorldPosition + new Vector3(0, 1f, 0f);
+            var startScale = tut.Transform.localScale;
+            tut.UnityUpdate += (u) => tut.Transform.localScale = startScale * (1f + (Mathf.Sin(Time.time * 10f) * 0.05f));
 
             ShadowParent = new UnityObject("ShadowParent");
             ShadowParent.Parent = this;

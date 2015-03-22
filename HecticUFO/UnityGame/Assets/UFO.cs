@@ -52,7 +52,7 @@ namespace HecticUFO
         {
             var cursor = new UnityObject(Assets.Prefabs.CursorPrefab);
             cursor.Parent = this;
-            cursor.UnityUpdate += (u) => cursor.WorldPosition = MouseTarget + new Vector3(0, 0.5f, 0f);
+            cursor.UnityUpdate += (u) => cursor.WorldPosition = MouseTarget + new Vector3(0, 0.1f, 0f);
 
             Beam = new UFOBeam();
             //Beam.Parent = this;
@@ -201,27 +201,27 @@ namespace HecticUFO
                 MouseTarget = WorldPosition + (mouseDir.normalized * mouseRadius);
             }
 
-            if (Input.GetKeyUp(KeyCode.X))
-            {
-                Brush = (Brush)(((int)Brush) + 1);
-                HecticUFOGame.S.Map.BrushChanged(Brush);
-            }
-            if (Input.GetKeyUp(KeyCode.Z))
-            {
-                Brush = (Brush)(((int)Brush) - 1);
-                HecticUFOGame.S.Map.BrushChanged(Brush);
-            }
+            //if (Input.GetKeyUp(KeyCode.X))
+            //{
+            //    Brush = (Brush)(((int)Brush) + 1);
+            //    HecticUFOGame.S.Map.BrushChanged(Brush);
+            //}
+            //if (Input.GetKeyUp(KeyCode.Z))
+            //{
+            //    Brush = (Brush)(((int)Brush) - 1);
+            //    HecticUFOGame.S.Map.BrushChanged(Brush);
+            //}
 
-            if(Input.GetKeyUp(KeyCode.Backspace))
-            {
-                PlayerPrefs.SetInt("x", (int)WorldPosition.x);
-                PlayerPrefs.SetInt("z", (int)WorldPosition.z);
-                PlayerPrefs.Save();
+            //if(Input.GetKeyUp(KeyCode.Backspace))
+            //{
+            //    PlayerPrefs.SetInt("x", (int)WorldPosition.x);
+            //    PlayerPrefs.SetInt("z", (int)WorldPosition.z);
+            //    PlayerPrefs.Save();
 
-                HecticUFOGame.S.Restart();
+            //    HecticUFOGame.S.Restart();
 
-                return;
-            }
+            //    return;
+            //}
 
             if(PlayerPrefs.HasKey("x") && PlayerPrefs.HasKey("z"))
             {
