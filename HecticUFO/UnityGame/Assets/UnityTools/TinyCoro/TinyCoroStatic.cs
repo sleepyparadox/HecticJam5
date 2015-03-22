@@ -29,7 +29,8 @@ namespace UnityTools_4_6
             {
                 //Step normal
                 _currentCoro = _allCoros[i];
-                _currentCoro.Step();
+                if (_currentCoro.Alive)
+                    _currentCoro.Step();
                 if (!_currentCoro.Alive)
                 {
                     _allCoros.RemoveAt(i);
@@ -59,6 +60,8 @@ namespace UnityTools_4_6
             var destinationTime = Time.time + seconds;
             return () => Time.time >= destinationTime;
         }
+
+        public static IEnumerable<TinyCoro> AllCoroutines { get { return _allCoros; } }
 
         private static List<TinyCoro> _allCoros = new List<TinyCoro>();
         private static TinyCoro _currentCoro;

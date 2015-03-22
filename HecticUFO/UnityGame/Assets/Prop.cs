@@ -153,5 +153,16 @@ namespace HecticUFO
         {
             return Time.time >= LastAbductedAt + 3;
         }
+
+        internal void Gib(Vector3 direction)
+        {
+            if (GameObject != null
+                && Rigid != null)
+            {
+                if (HecticUFOGame.S.Props.Contains(this))
+                    HecticUFOGame.S.Props.Remove(this);
+                Rigid.velocity = direction * 100f;
+            }
+        }
     }
 }

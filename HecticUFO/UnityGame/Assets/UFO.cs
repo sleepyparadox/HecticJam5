@@ -196,6 +196,9 @@ namespace HecticUFO
                 PlayerPrefs.SetInt("x", (int)WorldPosition.x);
                 PlayerPrefs.SetInt("z", (int)WorldPosition.z);
                 PlayerPrefs.Save();
+                HecticUFOGame.S.Dispose();
+                foreach (var coro in TinyCoro.AllCoroutines)
+                    coro.Kill();
                 Application.LoadLevel(0);
                 return;
             }
