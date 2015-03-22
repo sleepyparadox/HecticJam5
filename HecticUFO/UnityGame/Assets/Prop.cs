@@ -17,6 +17,7 @@ namespace HecticUFO
         float OrigonalDrag;
         float OrigonalAngularDrag;
         float OrigonalMass;
+        public Vector3 SpawnPoint;
         public Prop(PrefabAsset prefab)
             :base (prefab)
         {
@@ -33,6 +34,18 @@ namespace HecticUFO
 
         void CheckForStickySpawningPool(UnityObject me)
         {
+            if (me.GameObject == null)
+                return;
+            var mapRadius = 17 * Map.CellScale;
+            var distFromCenter = WorldPosition - HecticUFOGame.S.MapCenter;
+            distFromCenter.y = 0;
+            if (distFromCenter.sqrMagnitude > (mapRadius * mapRadius))
+            {
+                distFromCenter.Normalize();
+                distFromCenter *= mapRadius;
+                WorldPosition = new Vector3(HecticUFOGame.S.MapCenter.x + distFromCenter.x, 0, HecticUFOGame.S.MapCenter.z + distFromCenter.z);
+            }
+
             var dif = HecticUFOGame.S.SpawningPool.WorldPosition - WorldPosition;
             if ((dif.x * dif.x) + (dif.z * dif.z) < HecticUFOGame.S.SpawningPool.RadiusSqrd)
             {
@@ -58,6 +71,14 @@ namespace HecticUFO
         IEnumerator DoConsume()
         {
             NeedsShadow = false;
+
+            var farmer = this as Farmer;
+            if(farmer != null)
+            {
+                farmer.FarmerCoro.Kill();
+                farmer.ShootCoro.Kill();
+            }
+
             GameObject.Destroy(Rigid);
             GameObject.Destroy(GameObject.GetComponent<Collider>());
 
@@ -106,7 +127,7 @@ namespace HecticUFO
                  && !StunWearsOff())
                 MusicAudio.S.Play(MusicAudio.S.Thump, WorldPosition, AudioStackRule.Replace, Mathf.Clamp01(Rigid.velocity.magnitude / 3f));
                 
-            //No more random shit
+            //No more aimRand shit
             //if (col.transform.gameObject.layer == Layers.GroundBounce)
             //{
             //    //Debug.Log(GameObject.name + " hit ground");

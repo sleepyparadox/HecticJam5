@@ -16,14 +16,15 @@ namespace HecticUFO
         public const float CollectRadius = 2f;
         Collider GroundCollider;
         public Transform CollectDest;
-        public float CollectVelocity = 10f;
-        public float ShootVelocity = 40f;
+        public float CollectVelocity = 7.5f;
+        public float ShootVelocity = 60f;
         public List<Prop> Collecting = new List<Prop>();
         public List<Prop> Collected = new List<Prop>();
         public UnityEngine.GameObject Mesh;
+        public Rigidbody MeshRigid;
         private Vector3 MeshStartPos;
         Vector3 WhobbleAmount;
-        int CollectCountMax = 25;
+        int CollectCountMax = 10;
         List<GameObject> HPParticles;
         ParticleSystem FireEffect;
         TinyCoro HurtShake;
@@ -49,6 +50,10 @@ namespace HecticUFO
         public UFO()
             : base(Assets.Prefabs.UFOPrefab)
         {
+            var cursor = new UnityObject(Assets.Prefabs.CursorPrefab);
+            cursor.Parent = this;
+            cursor.UnityUpdate += (u) => cursor.WorldPosition = MouseTarget + new Vector3(0, 0.5f, 0f);
+
             Beam = new UFOBeam();
             //Beam.Parent = this;
             Brush = Brush.UFOAbduct;
@@ -60,7 +65,9 @@ namespace HecticUFO
             UnityDrawGizmos += (me) =>
             {
                 Gizmos.color = Input.GetMouseButton(0) ? Color.red : Color.white;
+                
                 Gizmos.DrawWireSphere(MouseTarget, CollectRadius);
+
             };
             UnityGUI += (me) =>
             {
@@ -97,6 +104,7 @@ namespace HecticUFO
 
         int _hp = 7;
         private ParticleSystem SmokeEffect;
+        public float ModifiedSpeed;
         public int Health
         {
             get
@@ -105,6 +113,8 @@ namespace HecticUFO
             }
             set
             {
+                if (Brush != HecticUFO.Brush.UFOAbduct)
+                    return;
                 _hp = value;
                 for (var i = 0; i < HPParticles.Count; ++i)
                     HPParticles[i].SetActive(_hp > i);
@@ -116,7 +126,7 @@ namespace HecticUFO
                 {
                     HurtShake = TinyCoro.SpawnNext(DoHurt);
                 }
-                else
+                else if(_hp == 0)
                 {
                     UnityUpdate = null;
                     UnityUpdate += (me) => 
@@ -137,9 +147,20 @@ namespace HecticUFO
                     FireEffect.Play();
                     SmokeEffect.enableEmission = true;
                     SmokeEffect.Play();
+
+                    Camera.FeedText.enabled = false;
+                    Camera.DestroyText.enabled = false;
+                    Camera.RestartText.enabled = true;
+                    Camera.DefeatText.enabled = true;
+                    Camera.WinText.enabled = false;
+                    Camera.CreditsText.enabled = true;
+                    HecticUFOGame.S.RestartOnSpace();
                 }
             }
         }
+
+        public bool WillRestartWithSpace = false;
+
         void HandleInput(UnityObject me)
         {
             foreach (var prop in Collected)
@@ -154,9 +175,9 @@ namespace HecticUFO
             CargoModifier = Mathf.Lerp(CargoModifier, targetCargoModifer, Time.deltaTime);
             //Debug.Log((Collecting.Count + Collected.Count) + " of " + CollectCountMax + ", " + Collecting.Count + " collecting, " + Collected.Count + " collected");
 
-            var modifiedSpeed = DefaultSpeed * CargoModifier;
-            WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * modifiedSpeed * Time.deltaTime;
-            WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * modifiedSpeed * Time.deltaTime;
+            ModifiedSpeed = DefaultSpeed * CargoModifier;
+            WorldPosition += Vector3.right * Input.GetAxis("Horizontal") * ModifiedSpeed * Time.deltaTime;
+            WorldPosition += Vector3.forward * Input.GetAxis("Vertical") * ModifiedSpeed * Time.deltaTime;
 
             var heightWithWeight = MeshStartPos * (0.35f + (0.65f * CargoModifier));
             //Debug.Log("Cargo Mod " + CargoModifier + ", Height " + heightWithWeight);
@@ -196,10 +217,9 @@ namespace HecticUFO
                 PlayerPrefs.SetInt("x", (int)WorldPosition.x);
                 PlayerPrefs.SetInt("z", (int)WorldPosition.z);
                 PlayerPrefs.Save();
-                HecticUFOGame.S.Dispose();
-                foreach (var coro in TinyCoro.AllCoroutines)
-                    coro.Kill();
-                Application.LoadLevel(0);
+
+                HecticUFOGame.S.Restart();
+
                 return;
             }
 
@@ -268,6 +288,16 @@ namespace HecticUFO
                 {
                     TinyCoro.SpawnNext(PreformSpew);
                 }
+            }
+
+            var mapRadius = 17 * Map.CellScale;
+            var distFromCenter = WorldPosition - HecticUFOGame.S.MapCenter;
+            distFromCenter.y = 0;
+            if(distFromCenter.sqrMagnitude > (mapRadius * mapRadius))
+            {
+                distFromCenter.Normalize();
+                distFromCenter *= mapRadius;
+                WorldPosition = new Vector3(HecticUFOGame.S.MapCenter.x + distFromCenter.x, 0, HecticUFOGame.S.MapCenter.z + distFromCenter.z);
             }
         }
 

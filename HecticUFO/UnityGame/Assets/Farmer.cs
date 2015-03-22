@@ -10,14 +10,23 @@ namespace HecticUFO
 {
     public class Farmer : Prop
     {
-        const float ThreatRange = 15f;
+        public float ThreatRange = 15f;
+        public float ShootRange = 5f;
+        public float ShootCooldown = 2.5f;
+        public float AimRand = 0.5f;
+        public float AimFollow = 1f;
+        public int ShotCount = 0;
         public Farmer()
-            : base(Assets.Prefabs.CowPrefab)
+            :this(Assets.Prefabs.FarmerPrefab)
         {
-            Transform.localScale *= 2f;
-            TinyCoro.SpawnNext(BeFarmer);
-            TinyCoro.SpawnNext(BeViolent);
-            UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 6 * Time.deltaTime);
+        }
+
+        public Farmer(PrefabAsset prefab)
+            : base(prefab)
+        {
+            FarmerCoro = TinyCoro.SpawnNext(BeFarmer);
+            ShootCoro = TinyCoro.SpawnNext(BeViolent);
+            UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 100 * Time.deltaTime);
         }
 
         bool AIAlive { get { return NeedsShadow && Rigid != null; } }
@@ -32,6 +41,14 @@ namespace HecticUFO
                 var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
                 if (ufoFlee.sqrMagnitude < ThreatRange * ThreatRange)
                     direction += ufoFlee * -3f; //REVERSE, FARMER ATTACKS UFO
+
+                var home = new Vector3(WorldPosition.x - SpawnPoint.x, 0, WorldPosition.z - SpawnPoint.z);
+                if (home.sqrMagnitude > 20 * 20)
+                    direction -= home * Mathf.Min(10, home.sqrMagnitude / 10f);
+
+                var poolFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.SpawningPool.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.SpawningPool.WorldPosition.z);
+                if (poolFlee.sqrMagnitude < 9 * 9)
+                    direction += poolFlee * 100f; //REVERSE, FARMER ATTACKS UFO
 
                 //Go up down more
                 direction.x *= 0.5f;
@@ -53,6 +70,8 @@ namespace HecticUFO
         }
 
         float nextShotAfter;
+        public TinyCoro FarmerCoro;
+        public TinyCoro ShootCoro;
 
         IEnumerator BeViolent()
         {
@@ -67,15 +86,31 @@ namespace HecticUFO
                         return false;
 
                     var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
-                    return (ufoFlee.sqrMagnitude < 5 * 5);
+                    return (ufoFlee.sqrMagnitude < ShootRange * ShootRange);
                 });
                 //yield return TinyCoro.WaitUntil(StunWearsOff);
                 //if(AIAlive)
                 {
-                    var random = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0)
-                                    * 0.5f;
-                    new Bullet(WorldPosition, HecticUFOGame.S.UFO.Mesh.transform.position + random);
-                    nextShotAfter = Time.time + UnityEngine.Random.Range(2, 3);
+                    var aimRand = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0)
+                                    * AimRand;
+                    var aimFollow = (Vector3.right * Input.GetAxis("Horizontal")) + (Vector3.right * Input.GetAxis("Vertical") ) 
+                        * HecticUFOGame.S.UFO.ModifiedSpeed
+                        * AimFollow;
+
+                    Bullet bullet;
+                    if (Bullet.Pool.Count > 0)
+                    {
+                        Debug.Log("Used pool");
+                        bullet = Bullet.Pool[0];
+                        Bullet.Pool.RemoveAt(0);
+                    }
+                    else
+                    {
+                        bullet = new Bullet();
+                    }
+                    bullet.Init(WorldPosition, HecticUFOGame.S.UFO.Mesh.transform.position + aimRand + aimFollow);
+                    ShotCount++;
+                    nextShotAfter = Time.time + ShootCooldown;
                 }
             }
         }

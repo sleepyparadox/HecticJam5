@@ -20,9 +20,9 @@ namespace HecticUFO
         private UnityObject Baby3;
         private int _food = 0;
         
-        private const int MaxFood = 9;
-        int Baby2At = 3;
-        int Baby3At = 6;
+        private const int MaxFood = 50;
+        int Baby3At = Mathf.FloorToInt(MaxFood * 2f / 3f);
+        int Baby2At = Mathf.FloorToInt(MaxFood * 1f / 3f);
 
         private UnityEngine.Transform AttachAt;
 

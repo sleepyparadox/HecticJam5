@@ -11,11 +11,13 @@ public enum AudioStackRule
     Replace,
     Singleton,
     OneShot,
+    Repeat,
 }
 
 public class MusicAudio : MonoBehaviour
 {
     public static MusicAudio S;
+    public AudioClip Song;
     public AudioClip CowMoo;
     public AudioClip UFOSuck;
     public AudioClip UFOBlow;
@@ -39,14 +41,17 @@ public class MusicAudio : MonoBehaviour
         var clipObj = new UnityObject();
         if (at.HasValue)
             clipObj.WorldPosition = at.Value;
+        else
+            clipObj.Parent = transform;
         var src = clipObj.GameObject.AddComponent<AudioSource>();
         src.clip = clip;
         src.volume = volume;
         src.Play();
-        src.loop = false;
+        src.loop = rule == AudioStackRule.Repeat;
         clipObj.UnityUpdate += (u) =>
         {
-            if(!src.isPlaying)
+            if(!src.isPlaying
+                && rule != AudioStackRule.Repeat)
             {
                 if (clipObj.Alive)
                     clipObj.Dispose();

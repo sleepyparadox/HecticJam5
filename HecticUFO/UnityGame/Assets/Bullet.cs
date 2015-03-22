@@ -9,20 +9,28 @@ namespace HecticUFO
 {
     public class Bullet : UnityObject
     {
-        const float Speed = 5f;
+        static public List<Bullet> Pool = new List<Bullet>();
+        const float Speed = 10f;
         float DieAt;
-        public Bullet(Vector3 start, Vector3 dest)
+        public Bullet()
             : base(Assets.Prefabs.BulletPrefab)
         {
             GameObject.layer = Layers.Bullets;
+        }
+
+        public void Init(Vector3 start, Vector3 dest)
+        {
             WorldPosition = start;
             GameObject.GetComponent<Rigidbody>().velocity = (dest - start).normalized * Speed;
-            DieAt = Time.time + 10f;
+            DieAt = Time.time + 5f;
+            used = false;
 
-            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             UnityUpdate += OnUpdate;
             UnityOnCollisionEnter += OnCollision;
+         
+            SetActive(true);
         }
+
         bool used = false;
         void OnCollision(UnityObject me, Collision colision)
         {
@@ -34,7 +42,8 @@ namespace HecticUFO
             {
                 HecticUFOGame.S.UFO.Health--;
                 used = true;
-                Dispose();
+
+                KillBullet();
             }
         }
 
@@ -42,9 +51,17 @@ namespace HecticUFO
         {
             if(Time.time >= DieAt)
             {
-                Dispose();
+                KillBullet();
                 return;
             }
+        }
+
+        void KillBullet()
+        {
+            UnityUpdate = null;
+            UnityOnCollisionEnter = null;
+            SetActive(false);
+            Pool.Add(this);
         }
     }
 }

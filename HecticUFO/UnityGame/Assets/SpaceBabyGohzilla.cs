@@ -10,21 +10,30 @@ namespace HecticUFO
 {
     class SpaceBabyGohzilla : UnityObject
     {
+        Renderer DefaultFrame;
+        Renderer AttackFrame;
         Rigidbody Rigid;
         public SpaceBabyGohzilla(float babyScale, Vector3 babyPosition)
             : base(Assets.Prefabs.BabyRampagePrefab)
         {
+            HecticUFOGame.S.UFO.Camera.FeedText.enabled = false;
+            HecticUFOGame.S.UFO.Camera.DestroyText.enabled = true;
+
+
+            DefaultFrame = GameObject.GetComponent<Renderer>();
+            AttackFrame = FindChildComponent<Renderer>("AttackFrame");
+            
             Rigid = GameObject.GetComponent<Rigidbody>();
             Transform.localScale *= babyScale;
             WorldPosition = babyPosition + (Vector3.up * 0.75f * babyScale);
-            UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 6 * Time.deltaTime);
+            UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 12 * Time.deltaTime);
 
             TinyCoro.SpawnNext(BeGohzilla);
             TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
 
             UnityOnCollisionEnter += OnCollisonEnter;
 
-            MusicAudio.S.Play(MusicAudio.S.BabyRoar, WorldPosition, AudioStackRule.OneShot, 10f);
+            MusicAudio.S.Play(MusicAudio.S.BabyRoar, WorldPosition, AudioStackRule.Singleton, 10f);
         }
 
         void OnCollisonEnter(UnityObject me, Collision col)
@@ -56,6 +65,26 @@ namespace HecticUFO
                     direction.Normalize();
                     direction.y = 1;
                     prop.Gib(direction);
+
+                    DefaultFrame.enabled = false;
+                    AttackFrame.enabled = true;
+                }
+
+                foreach (var building in HecticUFOGame.S.Buildings.Where(b => !b.Destroyed).ToList())
+                {
+                    var direction = building.WorldPosition - WorldPosition;
+                    direction.y = 0;
+
+                    var bRadius = radius + (building.Transform.localScale.x / 2f);
+
+                    if (direction.sqrMagnitude >= (radius * radius))
+                        continue;
+
+                    building.Destroyed = true;
+                    TinyCoro.SpawnNext(building.DoDestroy);
+
+                    DefaultFrame.enabled = false;
+                    AttackFrame.enabled = true;
                 }
             }
         }
@@ -68,7 +97,9 @@ namespace HecticUFO
                 var angle = UnityEngine.Random.Range(0f, Mathf.PI * 2);
                 var direction = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
 
-                var ufoFlee = new Vector3(WorldPosition.x - HecticUFOGame.S.UFO.WorldPosition.x, 0, WorldPosition.z - HecticUFOGame.S.UFO.WorldPosition.z);
+                var target = HecticUFOGame.S.UFO.WorldPosition + (Vector3.forward * 2f);
+
+                var ufoFlee = new Vector3(WorldPosition.x - target.x, 0, WorldPosition.z - target.z);
                 direction += ufoFlee * -5f; //REVERSE, FARMER ATTACKS UFO
 
                 //Go up down more
@@ -81,8 +112,10 @@ namespace HecticUFO
                 yield return TinyCoro.Wait(0.1f);
 
                 Rigid.AddForce(Vector3.down * 800f);
-
+                
                 yield return TinyCoro.Wait(0.25f * jumpMultiplier);
+                DefaultFrame.enabled = true;
+                AttackFrame.enabled = false;
             }
         }
     }

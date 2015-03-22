@@ -7,14 +7,22 @@ namespace HecticUFO
 {
     public enum Brush
     {
-        UFOAbduct,
         Water,
         Grass,
+        Concrete,
+        RoadH,
+        RoadV,
+        UFOAbduct,
         Trees,
         Cows,
-        Road,
-        Farm,
+        Farmer,
+        Soldier,
+        Barracks,
+        Barns,
+        FarmJunk,
+        Rocks,
         SpawningPool,
         Shadow,
+        //Road,
     }
 }

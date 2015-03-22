@@ -17,13 +17,21 @@ namespace HecticUFO
         {
             Layers = new List<MapLayer>()
             {
-                new MapLayer(Brush.Water, Assets.MaterialsGround.BlueMaterial.Material) {Editable = false},
-                new MapLayer(Brush.Grass, Assets.MaterialsGround.GrassBaseMaterial.Material),
+                new MapLayer(Brush.Water, Assets.Materials.watertileMaterial.Material),
+                new MapLayer(Brush.Grass, Assets.Materials.GrassTileMaterial.Material),
+                new MapLayer(Brush.Concrete, Assets.Materials.ConcreteTileMaterial.Material),
+                new MapLayer(Brush.RoadV, Assets.Materials.RoadVerticalMaterial.Material),
+                new MapLayer(Brush.RoadH, Assets.Materials.RoadHorizontalMaterial.Material),
                 new MapLayer(Brush.SpawningPool, null){ Editable = false },
                 new MapLayer(Brush.Shadow, null){ Editable = false },
+                new MapLayer(Brush.Soldier, Assets.Materials.Soldier1Material.Material){ DebugOnly = true },
+                new MapLayer(Brush.Farmer, Assets.Materials.FarmerMaterial.Material){ DebugOnly = true },
+                new MapLayer(Brush.Barracks, Assets.Materials.BarracksMaterial.Material){ DebugOnly = true },
                 new MapLayer(Brush.Trees, Assets.Materials.tree1Material.Material){ DebugOnly = true },
+                new MapLayer(Brush.Rocks, Assets.Materials.tree1Material.Material){ DebugOnly = true },
                 new MapLayer(Brush.Cows, Assets.Materials.CowMaterial.Material){ DebugOnly = true },
-                new MapLayer(Brush.Farm, Assets.Materials.BarnMaterial.Material){ DebugOnly = true },
+                new MapLayer(Brush.FarmJunk, Assets.Materials.HayBaleMaterial.Material){ DebugOnly = true },
+                new MapLayer(Brush.Barns, Assets.Materials.BarnMaterial.Material){ DebugOnly = true },
             };
 
             float height = 0f;
@@ -153,13 +161,14 @@ namespace HecticUFO
         public MapLayer(Brush brush, Material sharedMaterial)
             :base(brush.ToString())
         {
-            GameObject.layer = Layers.GroundMesh;
+            GameObject.layer = 0;
             Brush = brush;
             if (sharedMaterial == null)
                 return;
             Filter = GameObject.AddComponent<MeshFilter>();
             var renderer = GameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = sharedMaterial;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; 
         }
 
         public Brush Brush;

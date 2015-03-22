@@ -10,7 +10,7 @@ namespace UnityTools_4_6
     {
         static string[] invalidChars = new string[]
         {
-            ".", " ", "-","(",")",
+            ".", " ", "-","(",")", "!",
         };
 #if UNITY_EDITOR || (!UNITY_WEBPLAYER && !UNITY_ANDROID && !UNITY_IPHONE)
         public static void GenerateAssetCodeFile(string assetsDirectory, string outputFile, string outputClassName)

@@ -94,7 +94,8 @@ public class UnityObject
     {
         if (OnDispose != null)
             OnDispose.Fire(this);
-        UnityEngine.Object.Destroy(GameObject);
+        if (GameObject != null)
+            UnityEngine.Object.Destroy(GameObject);
     }
         
     public GameObject FindChild(string child)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,8 +16,10 @@ namespace HecticUFO
         public SpawningPool SpawningPool;
         public SpaceBaby SpaceBaby;
         public List<Prop> Props;
+        public List<Building> Buildings;
         public UnityObject PropParent;
         public UnityObject ShadowParent;
+        public Vector3 MapCenter;
 
         public HecticUFOGame()
         {
@@ -40,17 +43,19 @@ namespace HecticUFO
             }
             Map.RegenerateMesh();
 
-            var mapCenter = new Vector3(Map.MapSize / 2f, 0, Map.MapSize / 2f) * Map.CellScale;
+            MapCenter = new Vector3(Map.MapSize / 2f, 0, Map.MapSize / 2f) * Map.CellScale;
 
-            SpawningPool = new SpawningPool(mapCenter);
+            SpawningPool = new SpawningPool(MapCenter);
 
             SpaceBaby = new SpaceBaby();
             SpaceBaby.Parent = this;
-            SpaceBaby.WorldPosition = mapCenter;
+            SpaceBaby.WorldPosition = MapCenter;
 
             UFO = new UFO();
             UFO.Parent = this;
-            UFO.WorldPosition += mapCenter;
+            UFO.WorldPosition += MapCenter + new Vector3(0, 0, -25f);
+
+            new UnityObject(Assets.Prefabs.ControlsPrefab).WorldPosition = UFO.WorldPosition + new Vector3(0, 1f, 0f);
 
             ShadowParent = new UnityObject("ShadowParent");
             ShadowParent.Parent = this;
@@ -59,6 +64,7 @@ namespace HecticUFO
             PropParent.Parent = this;
 
             Props = new List<Prop>();
+            Buildings = new List<Building>();
 
             for (var x = 0; x < Map.MapSize; ++x)
             {
@@ -79,20 +85,75 @@ namespace HecticUFO
                     }
                     if (cell.Contains(Brush.Cows))
                     {
-                        var count = UnityEngine.Random.Range(0, 5);
+                        var count = UnityEngine.Random.Range(1, 6);
                         for (var i = 0; i < count; ++i)
                             props.Add(new Cow { FoodValue = 1});
-                        props.Add(new Farmer() { FoodValue = 1});
+                    }
+                    if (cell.Contains(Brush.Farmer))
+                    {
+                        var count = UnityEngine.Random.Range(1, 4);
+                        for (var i = 0; i < count; ++i)
+                            props.Add(new Farmer { FoodValue = 1 });
+                    }
+                    if (cell.Contains(Brush.Soldier))
+                    {
+                        var count = UnityEngine.Random.Range(1, 6);
+                        for (var i = 0; i < count; ++i)
+                            props.Add(new Soldier { FoodValue = 1 });
+                    }
+
+                    if (cell.Contains(Brush.Barracks))
+                    {
+                        var count = UnityEngine.Random.Range(1, 4);
+                        var building = new Building(UnityEngine.Random.Range(0, 100) < 60 ? Assets.Prefabs.BarracksPrefab : Assets.Prefabs.TowerPrefab);
+                        building.Parent = PropParent;
+                        building.WorldPosition = new Vector3((x + 0.5f) * Map.CellScale, building.Transform.localScale.y / 2f, (z + 0.5f) * Map.CellScale);
+                        Buildings.Add(building);
+                    }
+
+                    if (cell.Contains(Brush.Barns))
+                    {
+                        var count = UnityEngine.Random.Range(1, 4);
+                        var building = new Building(Assets.Prefabs.BarnPrefab);
+                        building.Parent = PropParent;
+                        building.WorldPosition = new Vector3((x + 0.5f) * Map.CellScale, building.Transform.localScale.y / 2f, (z + 0.5f) * Map.CellScale);
+                        Buildings.Add(building);
                     }
 
                     foreach (var prop in props)
                     {
                         prop.Parent = PropParent;
                         Props.Add(prop);
-                        prop.Transform.position = new Vector3((x + UnityEngine.Random.Range(0f, 1)) * Map.CellScale, prop.Transform.localScale.y / 2f, (z + UnityEngine.Random.Range(0f, 1)) * Map.CellScale);
+                        prop.WorldPosition = new Vector3((x + UnityEngine.Random.Range(0f, 1)) * Map.CellScale, prop.Transform.localScale.y / 2f, (z + UnityEngine.Random.Range(0f, 1)) * Map.CellScale);
+                        prop.SpawnPoint = prop.WorldPosition;
                     }
                 }
             }
+
+            MusicAudio.S.Play(MusicAudio.S.Song, null, AudioStackRule.Repeat);
+        }
+
+        public void RestartOnSpace()
+        {
+            UnityUpdate += (me) =>
+            {
+                if (Input.GetKeyUp(KeyCode.Space))
+                {
+                    Restart();
+                }
+            };
+        }
+
+        public void Restart()
+        {
+            HecticUFOGame.S.Dispose();
+            foreach (var coro in TinyCoro.AllCoroutines)
+                coro.Kill();
+            foreach (var b in Bullet.Pool)
+                b.Dispose();
+            Bullet.Pool.Clear();
+
+            Application.LoadLevel(0);
         }
     }
 }
