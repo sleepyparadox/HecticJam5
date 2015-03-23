@@ -1,5 +1,5 @@
-![MotherShip](https://github.com/sleepyparadox/HecticJam5/blob/master/HecticUFO/UnityGame/Assets/Resources/Textures/NewUFO.png?raw=true)
-![Cow](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/HecticUFO/UnityGame/Assets/Resources/Textures/Cow.png?raw=true)
+![MotherShip](https://github.com/sleepyparadox/HecticJam5/blob/master/HecticUFO/UnityGame/Assets/Resources/Textures/NewUFO.png)
+![Cow](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/HecticUFO/UnityGame/Assets/Resources/Textures/Cow.png)
 
 ## MaterShip - Hectic Jam 5
 
@@ -21,8 +21,8 @@ Open the [UnityGame folder](https://github.com/sleepyparadox/HecticJam5/tree/mas
 
 ## ScreenShots
 
-![ScreenShot0](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/Screenshots/Screen0.png?raw=true)
-![ScreenShot1](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/Screenshots/Screen1.png?raw=true)
-![ScreenShot2](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/Screenshots/Screen2.png?raw=true)
-![ScreenShot3](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/Screenshots/Screen3.png?raw=true)
-![ScreenShot4](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/Screenshots/Screen4.png?raw=true)
+![ScreenShot0](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/Screenshots/Screen0.png)
+![ScreenShot1](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/Screenshots/Screen1.png)
+![ScreenShot2](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/Screenshots/Screen2.png)
+![ScreenShot3](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/Screenshots/Screen3.png)
+![ScreenShot4](https://raw.githubusercontent.com/sleepyparadox/HecticJam5/master/Screenshots/Screen4.png)
