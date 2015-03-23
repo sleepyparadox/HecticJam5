@@ -28,6 +28,7 @@ namespace HecticUFO
         List<GameObject> HPParticles;
         ParticleSystem FireEffect;
         TinyCoro HurtShake;
+        Renderer EncumberedText;
 
         Brush Brush;
 
@@ -84,14 +85,16 @@ namespace HecticUFO
             WhobbleAmount = Vector3.up * 0.25f;
 
             HPParticles = new List<GameObject>();
-            for (var i = 0; i < Mesh.transform.childCount - 3; ++i)
+            for (var i = 0; i < Mesh.transform.childCount - 4; ++i)
                 HPParticles.Add(Mesh.transform.GetChild(i).gameObject);
             _hp = HPParticles.Count;
             FireEffect = Mesh.transform.FindChild("Fire").GetComponent<ParticleSystem>();
             FireEffect.enableEmission = false;
             SmokeEffect = Mesh.transform.FindChild("Smoke").GetComponent<ParticleSystem>();
             SmokeEffect.enableEmission = false;
-            
+            EncumberedText = Mesh.transform.FindChild("Encumbered").GetComponent<Renderer>();
+            EncumberedText.enabled = false;
+
 
             TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
 
@@ -170,6 +173,7 @@ namespace HecticUFO
 
             Beam.SetActive(Input.GetMouseButton(0));
             Beam.Weak = Collecting.Count + Collected.Count >= CollectCountMax;
+            EncumberedText.enabled = Beam.Weak;
 
             var targetCargoModifer = 1 - ((Collecting.Count + Collected.Count) / (float)CollectCountMax);
             CargoModifier = Mathf.Lerp(CargoModifier, targetCargoModifer, Time.deltaTime);
