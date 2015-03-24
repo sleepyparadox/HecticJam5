@@ -15,6 +15,7 @@ namespace HecticUFO
         public Bullet()
             : base(Assets.Prefabs.BulletPrefab)
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             GameObject.layer = Layers.Bullets;
         }
 

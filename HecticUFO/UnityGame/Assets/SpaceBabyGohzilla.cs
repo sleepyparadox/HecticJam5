@@ -16,6 +16,7 @@ namespace HecticUFO
         public SpaceBabyGohzilla(float babyScale, Vector3 babyPosition)
             : base(Assets.Prefabs.BabyRampagePrefab)
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             HecticUFOGame.S.UFO.Camera.FeedText.enabled = false;
             HecticUFOGame.S.UFO.Camera.DestroyText.enabled = true;
 
@@ -29,7 +30,6 @@ namespace HecticUFO
             UnityUpdate += (me) => Transform.localRotation = Quaternion.Slerp(Transform.localRotation, Quaternion.identity, 12 * Time.deltaTime);
 
             TinyCoro.SpawnNext(BeGohzilla);
-            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
 
             UnityOnCollisionEnter += OnCollisonEnter;
 

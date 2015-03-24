@@ -66,9 +66,7 @@ namespace HecticUFO
             UnityDrawGizmos += (me) =>
             {
                 Gizmos.color = Input.GetMouseButton(0) ? Color.red : Color.white;
-                
                 Gizmos.DrawWireSphere(MouseTarget, CollectRadius);
-
             };
             UnityGUI += (me) =>
             {
@@ -81,6 +79,7 @@ namespace HecticUFO
 
             //Whobble
             Mesh = FindChild("Mesh");
+            TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
             MeshStartPos = Mesh.transform.localPosition;
             WhobbleAmount = Vector3.up * 0.25f;
 
@@ -94,9 +93,6 @@ namespace HecticUFO
             SmokeEffect.enableEmission = false;
             EncumberedText = Mesh.transform.FindChild("Encumbered").GetComponent<Renderer>();
             EncumberedText.enabled = false;
-
-
-            TinyCoro.SpawnNext(() => Shadow.Create(Mesh));
 
             //TODO, not whobbly dest
             CollectDest = Mesh.transform.FindChild("BeamGlow");

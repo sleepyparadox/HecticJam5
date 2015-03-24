@@ -23,6 +23,7 @@ namespace HecticUFO
 
         public HecticUFOGame()
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             S = this;
 
             var csv = MapLoader.Load();
@@ -120,6 +121,7 @@ namespace HecticUFO
                         var building = new Building(Assets.Prefabs.BarnPrefab);
                         building.Parent = PropParent;
                         building.WorldPosition = new Vector3((x + 0.5f) * Map.CellScale, building.Transform.localScale.y / 2f, (z + 0.5f) * Map.CellScale);
+                        building.Finished = true; //Who even cares about barns
                         Buildings.Add(building);
                     }
 

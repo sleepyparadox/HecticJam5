@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using UnityEngine;
 
 namespace UnityTools_4_6
 {
@@ -12,9 +13,9 @@ namespace UnityTools_4_6
         {
             ".", " ", "-","(",")", "!",
         };
-#if UNITY_EDITOR || (!UNITY_WEBPLAYER && !UNITY_ANDROID && !UNITY_IPHONE)
         public static void GenerateAssetCodeFile(string assetsDirectory, string outputFile, string outputClassName)
         {
+#if UNITY_EDITOR && (!UNITY_WEBPLAYER && !UNITY_ANDROID && !UNITY_IPHONE)
             var outFile = new FileInfo(outputFile);
             if (!Directory.Exists(outFile.Directory.FullName))
                 Directory.CreateDirectory(outFile.Directory.FullName);
@@ -128,7 +129,10 @@ namespace UnityTools_4_6
             for (var i = 0; i < tabs; ++i)
                 s += tabFormat;
             return s;
+#else
+            Debug.LogError("File IO not avaliable on this platform");
+#endif 
+
         }
-#endif //#if UNITY_EDITOR || (!UNITY_WEBPLAYER && !UNITY_ANDROID && !UNITY_IPHONE)
     }
 }

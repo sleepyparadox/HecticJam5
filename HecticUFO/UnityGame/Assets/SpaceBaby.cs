@@ -28,6 +28,7 @@ namespace HecticUFO
 
         public SpaceBaby()
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             Scale = ScaleStart;
             Cord = new UnityObject(Assets.Prefabs.BabyCordPrefab);
             Cord.Parent = this;
@@ -43,13 +44,12 @@ namespace HecticUFO
             Baby3.SetActive(false);
 
             UnityUpdate += UpdateBaby;
-            //TinyCoro.SpawnNext(DoFattenBaby);
         }
 
         void UpdateBaby(UnityObject me)
         {
-            //if(Input.GetKeyUp(KeyCode.B))
-            //    Food = MaxFood;
+            if (Input.GetKeyUp(KeyCode.B))
+                Food = MaxFood;
 
             var offset = new Vector3(0, 0, 0.05f);
             var progress = (float)Food / MaxFood;

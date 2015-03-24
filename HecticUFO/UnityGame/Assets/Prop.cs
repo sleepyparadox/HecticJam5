@@ -21,6 +21,7 @@ namespace HecticUFO
         public Prop(PrefabAsset prefab)
             :base (prefab)
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             Rigid = GameObject.GetComponent<Rigidbody>();
             OrigonalDrag = Rigid.drag;
             OrigonalAngularDrag = Rigid.angularDrag;
@@ -28,8 +29,6 @@ namespace HecticUFO
 
             UnityUpdate += CheckForStickySpawningPool;
             UnityOnCollisionEnter += OnAnyCollide;
-
-            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
         }
 
         void CheckForStickySpawningPool(UnityObject me)

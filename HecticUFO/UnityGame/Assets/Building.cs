@@ -15,11 +15,13 @@ namespace HecticUFO
         public Building(PrefabAsset prefab)
             : base(prefab)
         {
+            TinyCoro.SpawnNext(() => Shadow.Create(GameObject));
             GameObject.layer = Layers.PropBounce;
         }
 
         public IEnumerator DoDestroy()
         {
+            Destroyed = true;
             var elapsed = 0f;
             var duration = 3f;
             var start = WorldPosition;
@@ -37,9 +39,9 @@ namespace HecticUFO
                 elapsed += Time.deltaTime;
             }
 
-            Destroyed = true;
+            Finished = true;
 
-            if(HecticUFOGame.S.Buildings.All(b => b.Destroyed && b.Finished))
+            if(HecticUFOGame.S.Buildings.All(b => b.Finished))
             {
                 HecticUFOGame.S.UFO.Camera.FeedText.enabled = false;
                 HecticUFOGame.S.UFO.Camera.DestroyText.enabled = false;
